@@ -72,8 +72,7 @@ int main(int argc, char* argv[])
     }
     const auto avgExecutionTime = (double) totalExecutionTime / (double) executionCnt;
     printf("\n%i average execution time:%f ms\n", executionCnt, avgExecutionTime);
-
-
+    
     auto outDir = dataDir;
     outDir = outDir.append("output");
     const auto outFile = outDir.append("drr.png");

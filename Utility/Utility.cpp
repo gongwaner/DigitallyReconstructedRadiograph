@@ -8,7 +8,7 @@ namespace IOUtil
 {
     bool PathExist(const char* fileDir)
     {
-        auto path = std::filesystem::path(fileDir);
+        const auto path = std::filesystem::path(fileDir);
         if(!std::filesystem::exists(path))
         {
             std::cerr << "ERROR: Directory " << path.string() << " does not exist!" << std::endl;
@@ -25,7 +25,7 @@ namespace IOUtil
             return nullptr;
         }
 
-        auto path = std::filesystem::path(folder);
+        const auto path = std::filesystem::path(folder);
         std::cout << "reading " << path << std::endl;
 
         auto reader = vtkSmartPointer<vtkDICOMImageReader>::New();
@@ -41,21 +41,18 @@ namespace TransformUtil
     //ref: https://github.com/hinerm/ITK/blob/21f48c6d98e21ecece09be16a747221d7094d8a9/Modules/Core/Transform/include/itkEuler3DTransform.hxx#L202C1-L202C1
     vtkSmartPointer<vtkMatrix3x3> GetRotationMatrix(const double rotationAngleX, const double rotationAngleY, const double rotationAngleZ)
     {
-        const double one = 1.0;
-        const double zero = 0.0;
-
         auto rotationX = vtkSmartPointer<vtkMatrix3x3>::New();
         {
             const double cosX = std::cos(rotationAngleX);
             const double sinX = std::sin(rotationAngleX);
 
-            rotationX->SetElement(0, 0, one);
-            rotationX->SetElement(0, 1, zero);
-            rotationX->SetElement(0, 2, zero);
-            rotationX->SetElement(1, 0, zero);
+            rotationX->SetElement(0, 0, 1);
+            rotationX->SetElement(0, 1, 0);
+            rotationX->SetElement(0, 2, 0);
+            rotationX->SetElement(1, 0, 0);
             rotationX->SetElement(1, 1, cosX);
             rotationX->SetElement(1, 2, -sinX);
-            rotationX->SetElement(2, 0, zero);
+            rotationX->SetElement(2, 0, 0);
             rotationX->SetElement(2, 1, sinX);
             rotationX->SetElement(2, 2, cosX);
         }
@@ -66,13 +63,13 @@ namespace TransformUtil
             const double sinY = std::sin(rotationAngleY);
 
             rotationY->SetElement(0, 0, cosY);
-            rotationY->SetElement(0, 1, zero);
+            rotationY->SetElement(0, 1, 0);
             rotationY->SetElement(0, 2, sinY);
-            rotationY->SetElement(1, 0, zero);
-            rotationY->SetElement(1, 1, one);
-            rotationY->SetElement(1, 2, zero);
+            rotationY->SetElement(1, 0, 0);
+            rotationY->SetElement(1, 1, 1);
+            rotationY->SetElement(1, 2, 0);
             rotationY->SetElement(2, 0, -sinY);
-            rotationY->SetElement(2, 1, zero);
+            rotationY->SetElement(2, 1, 0);
             rotationY->SetElement(2, 2, cosY);
         }
 
@@ -83,13 +80,13 @@ namespace TransformUtil
 
             rotationZ->SetElement(0, 0, cosZ);
             rotationZ->SetElement(0, 1, -sinZ);
-            rotationZ->SetElement(0, 2, zero);
+            rotationZ->SetElement(0, 2, 0);
             rotationZ->SetElement(1, 0, sinZ);
             rotationZ->SetElement(1, 1, cosZ);
-            rotationZ->SetElement(1, 2, zero);
-            rotationZ->SetElement(2, 0, zero);
-            rotationZ->SetElement(2, 1, zero);
-            rotationZ->SetElement(2, 2, one);
+            rotationZ->SetElement(1, 2, 0);
+            rotationZ->SetElement(2, 0, 0);
+            rotationZ->SetElement(2, 1, 0);
+            rotationZ->SetElement(2, 2, 1);
         }
 
         //compute Z*Y*X

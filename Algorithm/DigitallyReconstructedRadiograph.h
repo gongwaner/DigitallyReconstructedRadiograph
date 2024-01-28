@@ -19,7 +19,6 @@ namespace Algorithm
         void SetOutputImageDimension(const int dimensions[3]);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
         void SetOutputSpacing(const double spacing[3]);
-
         void Update();
 
         vtkSmartPointer<vtkImageData> GetOutput() const;
@@ -27,6 +26,13 @@ namespace Algorithm
         bool mDebug = false;
 
     private:
+        vtkSmartPointer<vtkImageData> mImageData = nullptr;
+        vtkSmartPointer<vtkMatrix4x4> mTransform = nullptr;
+
+        vtkVector3d mImageCenter{0.0, 0.0, 0.0};
+        vtkVector3d mTranslation{0.0, 0.0, 0.0};
+        vtkVector3d mFocalPoint{0.0, 0.0, 0.0};
+
         //Rotation around x,y,z axis in degrees
         float mRotX = 0.0f;
         float mRotY = 0.0f;
@@ -45,13 +51,6 @@ namespace Algorithm
 
         void ComputeCenteredEuler3DTransform();
         void ComputeFocalPoint();
-
         vtkSmartPointer<vtkImageData> GenerateOutputImageData() const;
-
-        vtkSmartPointer<vtkImageData> mImageData = nullptr;
-        vtkVector3d mImageCenter = vtkVector3d(0, 0, 0);
-        vtkVector3d mTranslation = vtkVector3d(0, 0, 0);
-        vtkVector3d mFocalPoint = vtkVector3d(0, 0, 0);
-        vtkSmartPointer<vtkMatrix4x4> mTransform = vtkSmartPointer<vtkMatrix4x4>::New();
     };
 }

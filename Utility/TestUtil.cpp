@@ -19,16 +19,15 @@
 namespace TestUtil
 {
     // Helper class to format slice status message.
-    class StatusMessage
+    namespace StatusMessage
     {
-    public:
-        static std::string Format(int slice, int maxSlice)
+        std::string Format(int slice, int maxSlice)
         {
             std::stringstream tmp;
             tmp << "Slice Number  " << slice + 1 << "/" << maxSlice + 1;
             return tmp.str();
         }
-    };
+    }
 
     class ImageInteractorStyle : public vtkInteractorStyleImage
     {
@@ -68,7 +67,7 @@ namespace TestUtil
                 cout << "MoveSliceForward::Slice = " << mCurrentSlice << std::endl;
                 mImageViewer->SetSlice(mCurrentSlice);
 
-                std::string msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);
+                const auto msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);
                 mStatusMapper->SetInput(msg.c_str());
                 mImageViewer->Render();
             }
@@ -82,41 +81,37 @@ namespace TestUtil
                 cout << "MoveSliceBackward::Slice = " << mCurrentSlice << std::endl;
                 mImageViewer->SetSlice(mCurrentSlice);
 
-                std::string msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);
+                const auto msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);
                 mStatusMapper->SetInput(msg.c_str());
                 mImageViewer->Render();
             }
         }
 
-        virtual void OnKeyDown()
+        void OnKeyDown() override
         {
             std::string key = this->GetInteractor()->GetKeySym();
-            if(key.compare("Up") == 0)
+            if(key == "Up")
             {
-                // cout << "Up arrow key was pressed." << endl;
                 MoveSliceForward();
             }
-            else if(key.compare("Down") == 0)
+            else if(key == "Down")
             {
-                // cout << "Down arrow key was pressed." << endl;
                 MoveSliceBackward();
             }
-            // forward event
+
             vtkInteractorStyleImage::OnKeyDown();
         }
 
-        virtual void OnMouseWheelForward()
+        void OnMouseWheelForward() override
         {
-            // std::cout << "Scrolled mouse wheel forward." << std::endl;
             MoveSliceForward();
             // don't forward events, otherwise the image will be zoomed
             // in case another interactorstyle is used (e.g. trackballstyle, ...)
             // vtkInteractorStyleImage::OnMouseWheelForward();
         }
 
-        virtual void OnMouseWheelBackward()
+        void OnMouseWheelBackward() override
         {
-            // std::cout << "Scrolled mouse wheel backward." << std::endl;
             if(mCurrentSlice > mMinSlice)
             {
                 MoveSliceBackward();
@@ -131,7 +126,6 @@ namespace TestUtil
 
     void VisualizeImageData(vtkImageData* imageData)
     {
-        // Visualize
         auto imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
         imageViewer->SetInputData(imageData);
 
@@ -143,7 +137,7 @@ namespace TestUtil
         sliceTextProp->SetJustificationToLeft();
 
         auto sliceTextMapper = vtkSmartPointer<vtkTextMapper>::New();
-        std::string msg = StatusMessage::Format(imageViewer->GetSliceMin(), imageViewer->GetSliceMax());
+        const auto msg = StatusMessage::Format(imageViewer->GetSliceMin(), imageViewer->GetSliceMax());
         sliceTextMapper->SetInput(msg.c_str());
         sliceTextMapper->SetTextProperty(sliceTextProp);
 
@@ -204,8 +198,8 @@ namespace TestUtil
 
     bool IsValidDirectory(const char* fileDir)
     {
-        auto path = std::filesystem::path(fileDir);
-        auto parentDir = path.parent_path();
+        const auto path = std::filesystem::path(fileDir);
+        const auto parentDir = path.parent_path();
         if(!std::filesystem::is_directory(parentDir))
         {
             std::cerr << "ERROR: Directory " << parentDir.string() << " does not exist! Creating Directory..." << std::endl;
@@ -218,7 +212,8 @@ namespace TestUtil
 
     void WritePng(const char* fileDir, vtkImageData* imageData)
     {
-        auto validDir = IsValidDirectory(fileDir);
+        if(!IsValidDirectory(fileDir))
+            return;
 
         auto writer = vtkSmartPointer<vtkPNGWriter>::New();
         writer->SetFileName(fileDir);
