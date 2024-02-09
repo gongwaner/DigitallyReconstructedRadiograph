@@ -115,7 +115,6 @@ namespace Algorithm
         interpolator.SetFocalPoint(mFocalPoint);
         interpolator.SetThreshold(mThreshold);
 
-        // Retrieve the entries from the image data and print them to the screen
         for(int z = 0; z < outputImage->GetDimensions()[2]; z++)
         {
             for(int y = 0; y < outputImage->GetDimensions()[1]; y++)
@@ -132,11 +131,10 @@ namespace Algorithm
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 
                     //evaluate input at right position and copy to the output
-                    const auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
+                    auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
 
                     //if(interpolator->IsInsideBuffer(inputIndex)
-                    const auto value = interpolator.EvaluateAtContinuousIndex(inputIndex);
-                    outPixel[0] = (short) value;
+                    outPixel[0] = (short) interpolator.EvaluateAtContinuousIndex(inputIndex);
                     //else
                     //outPixel[0] = mDefaultPixelValue;
                 }
@@ -151,8 +149,7 @@ namespace Algorithm
         ComputeCenteredEuler3DTransform();
         ComputeFocalPoint();
 
-        // In addition, the position of the DRR is specified. The default
-        // position of the input volume, prior to its transformation is
+        // The default position of the input volume, prior to its transformation is
         // half-way between the ray source and screen and unless specified
         // otherwise the normal from the "screen" to the ray source passes
         // directly through the centre of the DRR.
