@@ -2,7 +2,6 @@
 
 #include <vtkVectorOperators.h>
 
-#include "RayCastHelper.h"
 #include "../Utility/Utility.h"
 
 namespace Algorithm
@@ -10,6 +9,7 @@ namespace Algorithm
     void RayCastInterpolateImageFunction::SetImageData(vtkSmartPointer<vtkImageData> imageData)
     {
         mImageData = imageData;
+        mRay.SetImage(mImageData);
     }
 
     void RayCastInterpolateImageFunction::SetTransform(vtkSmartPointer<vtkMatrix4x4> transform)
@@ -31,21 +31,19 @@ namespace Algorithm
 
     double RayCastInterpolateImageFunction::Evaluate(const vtkVector3d& point)
     {
-        auto origin = mImageData->GetOrigin();
-        auto spacing = mImageData->GetSpacing();
+        const auto origin = mImageData->GetOrigin();
+        const auto spacing = mImageData->GetSpacing();
         auto rayPosition = point;
         for(int i = 0; i < 3; ++i)
         {
             rayPosition[i] -= origin[i] - 0.5 * spacing[i];
         }
 
-        auto direction = (mTransformedFocalPoint - point).Normalized();
+        const auto direction = (mTransformedFocalPoint - point).Normalized();
 
         double integral = 0.0;
-        RayCastHelper ray;
-        ray.SetImage(mImageData);
-        ray.SetRay(rayPosition, direction);
-        ray.IntegrateAboveThreshold(integral, mThreshold);
+        mRay.SetRay(rayPosition, direction);
+        mRay.IntegrateAboveThreshold(integral, mThreshold);
 
         return integral;
     }

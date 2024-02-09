@@ -388,10 +388,8 @@ namespace Algorithm
         const auto nextIncrementValue = mVoxelIncrement[nextIndex];
         const auto prevIncrementValue = mVoxelIncrement[prevIndex];
 
-        mRayVoxelStartPosition[nextIndex] +=
-                ((int) startPos - startPos) * nextIncrementValue * incrementValue + 0.5 * nextIncrementValue - 0.5;
-        mRayVoxelStartPosition[prevIndex] +=
-                ((int) startPos - startPos) * prevIncrementValue * incrementValue + 0.5 * prevIncrementValue - 0.5;
+        mRayVoxelStartPosition[nextIndex] += ((int) startPos - startPos) * nextIncrementValue * incrementValue + 0.5 * nextIncrementValue - 0.5;
+        mRayVoxelStartPosition[prevIndex] += ((int) startPos - startPos) * prevIncrementValue * incrementValue + 0.5 * prevIncrementValue - 0.5;
         mRayVoxelStartPosition[index] = (int) startPos + 0.5 * incrementValue;
     }
 
@@ -556,8 +554,7 @@ namespace Algorithm
         //The ray passes through the volume one plane of voxels at a time
         // however, if its moving diagonally the ray points will be further apart
         // so account for this by scaling by the distance moved.
-        integral = sum;
-        integral *= GetRayPointSpacing();
+        integral = sum * GetRayPointSpacing();
 
         return true;
     }

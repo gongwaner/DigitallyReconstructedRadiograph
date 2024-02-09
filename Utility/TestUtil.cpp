@@ -64,7 +64,7 @@ namespace TestUtil
             if(mCurrentSlice < mMaxSlice)
             {
                 mCurrentSlice += 1;
-                cout << "MoveSliceForward::Slice = " << mCurrentSlice << std::endl;
+                std::cout << "MoveSliceForward::Slice = " << mCurrentSlice << std::endl;
                 mImageViewer->SetSlice(mCurrentSlice);
 
                 const auto msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);

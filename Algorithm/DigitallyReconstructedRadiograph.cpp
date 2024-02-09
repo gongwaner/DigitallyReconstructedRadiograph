@@ -2,7 +2,6 @@
 
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>
-#include <vtkPNGWriter.h>
 
 #include "RayCastInterpolateImageFunction.h"
 #include "../Utility/Utility.h"
@@ -129,14 +128,14 @@ namespace Algorithm
 
                     //corresponding input pixel position
                     double inputIndex[3];
-                    auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    const auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 
                     //evaluate input at right position and copy to the output
-                    auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
+                    const auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
 
                     //if(interpolator->IsInsideBuffer(inputIndex)
-                    auto value = interpolator.EvaluateAtContinuousIndex(inputIndex);
+                    const auto value = interpolator.EvaluateAtContinuousIndex(inputIndex);
                     outPixel[0] = (short) value;
                     //else
                     //outPixel[0] = mDefaultPixelValue;
