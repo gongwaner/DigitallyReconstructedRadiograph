@@ -1,10 +1,13 @@
 #include "DigitallyReconstructedRadiograph.h"
 
+#include "RayCastInterpolateImageFunction.h"
+#include "../Utility/Utility.h"
+
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>
 
-#include "RayCastInterpolateImageFunction.h"
-#include "../Utility/Utility.h"
+#include <execution>
+
 
 namespace Algorithm
 {
@@ -97,7 +100,7 @@ namespace Algorithm
     }
 
     //ref: https://github.com/InsightSoftwareConsortium/ITK/blob/12328e1d2ff8becab001654dccbb393657521691/Modules/Filtering/ImageGrid/include/itkResampleImageFilter.hxx#L369
-    vtkSmartPointer<vtkImageData> DigitallyReconstructedRadiograph::GenerateOutputImageData() const
+    vtkSmartPointer<vtkImageData> DigitallyReconstructedRadiograph::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
             printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0],
@@ -115,6 +118,7 @@ namespace Algorithm
         interpolator.SetFocalPoint(mFocalPoint);
         interpolator.SetThreshold(mThreshold);
 
+        // Retrieve the entries from the image data and print them to the screen
         for(int z = 0; z < outputImage->GetDimensions()[2]; z++)
         {
             for(int y = 0; y < outputImage->GetDimensions()[1]; y++)
@@ -127,19 +131,101 @@ namespace Algorithm
 
                     //corresponding input pixel position
                     double inputIndex[3];
-                    const auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
 
                     //if(interpolator->IsInsideBuffer(inputIndex)
-                    outPixel[0] = (short) interpolator.EvaluateAtContinuousIndex(inputIndex);
+                    auto value = interpolator.EvaluateAtContinuousIndex(inputIndex);
+                    if(mDebug)
+                        std::cout << "value = " << value << std::endl;
+
+                    if(value < 0)
+                    {
+                        std::cout << "value = " << value << std::endl;
+                    }
+
+                    outPixel[0] = (short) value;
                     //else
                     //outPixel[0] = mDefaultPixelValue;
                 }
             }
         }
+
+        return outputImage;
+    }
+
+    /**
+     * parallel version of DDR calculation using parallel STL
+     * currently available only on WIN
+     */
+    vtkSmartPointer<vtkImageData> DigitallyReconstructedRadiograph::GenerateOutputImageDataPar() const
+    {
+        if(mDebug)
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0],
+                   mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
+
+        auto outputImage = vtkSmartPointer<vtkImageData>::New();
+        outputImage->SetOrigin(mOutputOrigin.GetData());
+        outputImage->SetDimensions(mOutputDimension);
+        outputImage->SetSpacing(mOutputSpacing);
+        outputImage->AllocateScalars(mImageData->GetScalarType(), 1);
+
+        RayCastInterpolateImageFunction interpolator;
+        interpolator.SetImageData(mImageData);
+        interpolator.SetTransform(mTransform);
+        interpolator.SetFocalPoint(mFocalPoint);
+        interpolator.SetThreshold(mThreshold);
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        const auto vectorSize = mOutputDimension[0] * mOutputDimension[1] * mOutputDimension[2];
+        std::vector<vtkVector3d> inputIndicesVec;
+        inputIndicesVec.reserve(vectorSize);
+
+        std::vector<short*> outPixelsVec;
+        outPixelsVec.reserve(vectorSize);
+
+        for(int z = 0; z < outputImage->GetDimensions()[2]; z++)
+        {
+            for(int y = 0; y < outputImage->GetDimensions()[1]; y++)
+            {
+                for(int x = 0; x < outputImage->GetDimensions()[0]; x++)
+                {
+                    //current output point position
+                    double outputPoint[3];
+                    outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
+
+                    //corresponding input pixel position
+                    const auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    double inputIndex[3];
+                    mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
+                    inputIndicesVec.emplace_back(inputIndex);
+
+                    auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
+                    outPixelsVec.push_back(outPixel);
+                }
+            }
+        }
+
+        std::vector<short> resultPixelValueVec(vectorSize);
+        std::transform(std::execution::par, inputIndicesVec.begin(), inputIndicesVec.end(), resultPixelValueVec.begin(),
+                       [&interpolator](const vtkVector3d& inputIndex)
+                       {
+                           return (short) interpolator.EvaluateAtContinuousIndex(inputIndex.GetData());
+                       });
+
+        for(int i = 0; i < resultPixelValueVec.size(); ++i)
+        {
+            auto ptr = outPixelsVec[i];
+            *ptr = resultPixelValueVec[i];
+        }
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        std::cout << "the parallel version takes " << duration.count() << " ms" << std::endl;
 
         return outputImage;
     }
@@ -157,7 +243,11 @@ namespace Algorithm
         mOutputOrigin[1] = mImageCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
         mOutputOrigin[2] = mImageCenter[2] + mSourceToImageDistance * 0.5;
 
-        auto outputImage = GenerateOutputImageData();
+#ifdef _WIN32
+        auto outputImage = GenerateOutputImageDataPar();
+#else
+        auto outputImage = GenerateOutputImageDataSeq();
+#endif
 
         //convert to unsigned short
         auto castFilter = vtkSmartPointer<vtkImageCast>::New();

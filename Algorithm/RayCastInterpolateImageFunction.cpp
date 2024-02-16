@@ -9,7 +9,6 @@ namespace Algorithm
     void RayCastInterpolateImageFunction::SetImageData(vtkSmartPointer<vtkImageData> imageData)
     {
         mImageData = imageData;
-        mRay.SetImage(mImageData);
     }
 
     void RayCastInterpolateImageFunction::SetTransform(vtkSmartPointer<vtkMatrix4x4> transform)
@@ -42,8 +41,11 @@ namespace Algorithm
         const auto direction = (mTransformedFocalPoint - point).Normalized();
 
         double integral = 0.0;
-        mRay.SetRay(rayPosition, direction);
-        mRay.IntegrateAboveThreshold(integral, mThreshold);
+
+        RayCastHelper ray;
+        ray.SetImage(mImageData);
+        ray.SetRay(rayPosition, direction);
+        ray.IntegrateAboveThreshold(integral, mThreshold);
 
         return integral;
     }

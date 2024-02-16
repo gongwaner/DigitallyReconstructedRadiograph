@@ -25,8 +25,6 @@ namespace Algorithm
         vtkVector3d mTransformedFocalPoint = vtkVector3d(0, 0, 0);
         double mThreshold = 0.0;
 
-        RayCastHelper mRay;
-
         double Evaluate(const vtkVector3d& point);
     };
 }
