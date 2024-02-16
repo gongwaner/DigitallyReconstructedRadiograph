@@ -130,24 +130,15 @@ namespace Algorithm
                     outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
 
                     //corresponding input pixel position
-                    double inputIndex[3];
                     auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    double inputIndex[3];
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
 
                     //if(interpolator->IsInsideBuffer(inputIndex)
-                    auto value = interpolator.EvaluateAtContinuousIndex(inputIndex);
-                    if(mDebug)
-                        std::cout << "value = " << value << std::endl;
-
-                    if(value < 0)
-                    {
-                        std::cout << "value = " << value << std::endl;
-                    }
-
-                    outPixel[0] = (short) value;
+                    *outPixel = (short) interpolator.EvaluateAtContinuousIndex(inputIndex);
                     //else
                     //outPixel[0] = mDefaultPixelValue;
                 }
@@ -157,6 +148,7 @@ namespace Algorithm
         return outputImage;
     }
 
+#ifdef _WIN32
     /**
      * parallel version of DDR calculation using parallel STL
      * currently available only on WIN
@@ -225,10 +217,11 @@ namespace Algorithm
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-        std::cout << "the parallel version takes " << duration.count() << " ms" << std::endl;
+        std::cout << "the parallel version GenerateOutputImageDataPar() takes " << duration.count() << " ms" << std::endl;
 
         return outputImage;
     }
+#endif
 
     void DigitallyReconstructedRadiograph::Update()
     {
