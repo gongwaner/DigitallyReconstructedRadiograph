@@ -31,7 +31,7 @@ namespace Algorithm
         mThreshold = threshold;
     }
 
-    double RayCastInterpolateImageFunction::Evaluate(const vtkVector3d& point)
+    double RayCastInterpolateImageFunction::Evaluate(const vtkVector3d& point) const
     {
         const auto origin = mImageData->GetOrigin();
         const auto spacing = mImageData->GetSpacing();
@@ -53,7 +53,7 @@ namespace Algorithm
         return integral;
     }
 
-    double RayCastInterpolateImageFunction::EvaluateAtContinuousIndex(const double index[3])
+    double RayCastInterpolateImageFunction::EvaluateAtContinuousIndex(const double index[3]) const
     {
         double physicalPnt[3];
         mImageData->TransformContinuousIndexToPhysicalPoint(index, physicalPnt);

@@ -15,7 +15,7 @@ namespace Algorithm
         void SetTransform(vtkMatrix4x4* transform);
         void SetFocalPoint(const vtkVector3d& focalPoint);
         void SetThreshold(double threshold);
-        double EvaluateAtContinuousIndex(const double index[3]);
+        double EvaluateAtContinuousIndex(const double index[3]) const;
 
     private:
         vtkImageData* mImageData = nullptr;
@@ -24,6 +24,6 @@ namespace Algorithm
         vtkVector3d mTransformedFocalPoint{0, 0, 0};
         double mThreshold = 0.0;
 
-        double Evaluate(const vtkVector3d& point);
+        double Evaluate(const vtkVector3d& point) const;
     };
 }
