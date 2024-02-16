@@ -1,8 +1,14 @@
 #include "Utility.h"
 
+#include <vtkSmartPointer.h>
 #include <vtkDICOMImageReader.h>
+#include <vtkPNGWriter.h>
+#include <vtkImageData.h>
+#include <vtkMatrix3x3.h>
+#include <vtkMatrix4x4.h>
 
 #include <filesystem>
+
 
 namespace IOUtil
 {
@@ -18,11 +24,24 @@ namespace IOUtil
         return true;
     }
 
+    bool IsValidDirectory(const char* fileDir)
+    {
+        const auto path = std::filesystem::path(fileDir);
+        const auto parentDir = path.parent_path();
+        if(!std::filesystem::is_directory(parentDir))
+        {
+            std::cerr << "ERROR: Directory " << parentDir.string() << " does not exist!" << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
     vtkSmartPointer<vtkImageData> ReadImageDataFromFolder(const char* folder)
     {
         if(!PathExist(folder))
         {
-            return nullptr;
+            throw std::runtime_error("ReadImageDataFromFolder(). Folder does not exist!");
         }
 
         const auto path = std::filesystem::path(folder);
@@ -33,6 +52,23 @@ namespace IOUtil
         reader->Update();
 
         return reader->GetOutput();
+    }
+
+    void WritePng(const char* fileDir, vtkImageData* imageData)
+    {
+        if(!IsValidDirectory(fileDir))
+        {
+            std::cout << "Creating Directory..." << std::endl;
+
+            const auto path = std::filesystem::path(fileDir);
+            const auto parentDir = path.parent_path();
+            std::filesystem::create_directories(parentDir);
+        }
+
+        auto writer = vtkSmartPointer<vtkPNGWriter>::New();
+        writer->SetFileName(fileDir);
+        writer->SetInputData(imageData);
+        writer->Write();
     }
 }
 

@@ -1,10 +1,11 @@
 #pragma  once
 
-#include <vtkSmartPointer.h>
-#include <vtkImageData.h>
 #include <vtkVector.h>
 
 #include <vector>
+
+
+class vtkImageData;
 
 namespace Algorithm
 {
@@ -21,7 +22,7 @@ namespace Algorithm
     public:
         void SetImage(vtkImageData* imageData);
         bool SetRay(const vtkVector3d& rayOrigin, const vtkVector3d& rayDirection);
-        bool IntegrateAboveThreshold(double& integral, const double threshold);
+        bool IntegrateAboveThreshold(double& integral, double threshold);
 
     private:
         vtkImageData* mImage = nullptr;
@@ -51,8 +52,9 @@ namespace Algorithm
         bool AdjustRayLength();
         void InitializeVoxelPointers();
         void Reset();
-        double GetCurrentIntensity() const;
         void IncrementVoxelPointers();
+
+        double GetCurrentIntensity() const;
         double GetRayPointSpacing() const;
     };
 }

@@ -1,6 +1,6 @@
 #include "TestUtil.h"
 
-#include <vtkSmartPointer.h>
+#include <vtkImageData.h>
 #include <vtkNamedColors.h>
 #include <vtkObjectFactory.h>
 #include <vtkRenderWindow.h>
@@ -11,10 +11,9 @@
 #include <vtkInteractorStyleImage.h>
 #include <vtkTextMapper.h>
 #include <vtkTextProperty.h>
-#include <vtkPNGWriter.h>
 
 #include <sstream>
-#include <filesystem>
+
 
 namespace TestUtil
 {
@@ -194,30 +193,5 @@ namespace TestUtil
         imageViewer->GetRenderWindow()->SetWindowName("ReadDICOMSeries");
         imageViewer->Render();
         renderWindowInteractor->Start();
-    }
-
-    bool IsValidDirectory(const char* fileDir)
-    {
-        const auto path = std::filesystem::path(fileDir);
-        const auto parentDir = path.parent_path();
-        if(!std::filesystem::is_directory(parentDir))
-        {
-            std::cerr << "ERROR: Directory " << parentDir.string() << " does not exist! Creating Directory..." << std::endl;
-            std::filesystem::create_directories(parentDir);
-            return false;
-        }
-
-        return true;
-    }
-
-    void WritePng(const char* fileDir, vtkImageData* imageData)
-    {
-        if(!IsValidDirectory(fileDir))
-            return;
-
-        auto writer = vtkSmartPointer<vtkPNGWriter>::New();
-        writer->SetFileName(fileDir);
-        writer->SetInputData(imageData);
-        writer->Write();
     }
 }

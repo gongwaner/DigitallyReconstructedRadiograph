@@ -1,14 +1,15 @@
 #pragma once
 
-#include <vtkSmartPointer.h>
-#include <vtkImageData.h>
-#include <vtkMatrix3x3.h>
-#include <vtkMatrix4x4.h>
 #include <vtkVector.h>
+
+class vtkImageData;
+class vtkMatrix3x3;
+class vtkMatrix4x4;
 
 namespace IOUtil
 {
     vtkSmartPointer<vtkImageData> ReadImageDataFromFolder(const char* folder);
+    void WritePng(const char* fileDir, vtkImageData* imageData);
 }
 
 namespace TransformUtil

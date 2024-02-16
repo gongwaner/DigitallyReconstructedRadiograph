@@ -1,6 +1,7 @@
 #pragma  once
 
 #include <vtkSmartPointer.h>
+#include <vtkMatrix4x4.h>
 #include <vtkImageData.h>
 #include <vtkVector.h>
 

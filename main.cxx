@@ -72,12 +72,12 @@ int main(int argc, char* argv[])
     }
     const auto avgExecutionTime = (double) totalExecutionTime / (double) executionCnt;
     printf("\n%i average execution time:%f ms\n", executionCnt, avgExecutionTime);
-    
+
     auto outDir = dataDir;
     outDir = outDir.append("output");
     const auto outFile = outDir.append("drr.png");
     std::cout << "outFile: " << outFile << std::endl;
-    TestUtil::WritePng(outFile.string().c_str(), outputImage);
+    IOUtil::WritePng(outFile.string().c_str(), outputImage);
 
     return EXIT_SUCCESS;
 }
