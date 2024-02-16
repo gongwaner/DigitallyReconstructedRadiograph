@@ -2,8 +2,10 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkMatrix4x4.h>
-#include <vtkImageData.h>
 #include <vtkVector.h>
+
+
+class vtkImageData;
 
 namespace Algorithm
 {
@@ -11,7 +13,7 @@ namespace Algorithm
     class DigitallyReconstructedRadiograph
     {
     public:
-        void SetInputImage(vtkSmartPointer<vtkImageData> imageData);
+        void SetInputImage(vtkImageData* imageData);
         void SetThreshold(double threshold);
         void SetSourceToImageDistance(float distance);
         void SetDefaultPixelValue(double value);
@@ -20,6 +22,7 @@ namespace Algorithm
         void SetOutputImageDimension(const int dimensions[3]);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
         void SetOutputSpacing(const double spacing[3]);
+
         void Update();
 
         vtkSmartPointer<vtkImageData> GetOutput() const;
@@ -27,7 +30,7 @@ namespace Algorithm
         bool mDebug = false;
 
     private:
-        vtkSmartPointer<vtkImageData> mImageData = nullptr;
+        vtkImageData* mImageData = nullptr;
         vtkSmartPointer<vtkMatrix4x4> mTransform = nullptr;
 
         vtkVector3d mImageCenter{0.0, 0.0, 0.0};
@@ -52,6 +55,7 @@ namespace Algorithm
 
         void ComputeCenteredEuler3DTransform();
         void ComputeFocalPoint();
+
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };

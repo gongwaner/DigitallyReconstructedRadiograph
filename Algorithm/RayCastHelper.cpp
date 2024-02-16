@@ -1,9 +1,8 @@
 #include "RayCastHelper.h"
 
 #include <vtkImageData.h>
-
-#include <stdexcept>
 #include <vtkVectorOperators.h>
+
 
 namespace Algorithm
 {

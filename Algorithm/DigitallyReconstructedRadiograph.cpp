@@ -3,6 +3,7 @@
 #include "RayCastInterpolateImageFunction.h"
 #include "../Utility/Utility.h"
 
+#include <vtkImageData.h>
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>
 
@@ -11,7 +12,7 @@
 
 namespace Algorithm
 {
-    void DigitallyReconstructedRadiograph::SetInputImage(vtkSmartPointer<vtkImageData> imageData)
+    void DigitallyReconstructedRadiograph::SetInputImage(vtkImageData* imageData)
     {
         mImageData = imageData;
 

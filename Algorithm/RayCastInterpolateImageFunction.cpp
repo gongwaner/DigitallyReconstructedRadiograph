@@ -1,17 +1,20 @@
 #include "RayCastInterpolateImageFunction.h"
 
+#include "RayCastHelper.h"
+#include "../Utility/Utility.h"
+
+#include <vtkImageData.h>
 #include <vtkVectorOperators.h>
 
-#include "../Utility/Utility.h"
 
 namespace Algorithm
 {
-    void RayCastInterpolateImageFunction::SetImageData(vtkSmartPointer<vtkImageData> imageData)
+    void RayCastInterpolateImageFunction::SetImageData(vtkImageData* imageData)
     {
         mImageData = imageData;
     }
 
-    void RayCastInterpolateImageFunction::SetTransform(vtkSmartPointer<vtkMatrix4x4> transform)
+    void RayCastInterpolateImageFunction::SetTransform(vtkMatrix4x4* transform)
     {
         mTransform = transform;
         mTransformedFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);

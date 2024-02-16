@@ -2,6 +2,7 @@
 
 #include <vtkVector.h>
 
+
 class vtkImageData;
 class vtkMatrix3x3;
 class vtkMatrix4x4;

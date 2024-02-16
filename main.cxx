@@ -3,6 +3,7 @@
 #include "Utility/Utility.h"
 #include "Utility/TestUtil.h"
 
+#include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkDataArray.h>
 #include <vtkImageIterator.h>
