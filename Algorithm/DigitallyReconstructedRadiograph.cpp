@@ -235,7 +235,7 @@ namespace Algorithm
         // directly through the centre of the DRR.
         mOutputOrigin[0] = mImageCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mImageCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
-        mOutputOrigin[2] = mImageCenter[2] + mSourceToImageDistance * 0.5;
+        mOutputOrigin[2] = mImageCenter[2] + mImageToOutputDistance * 0.5;
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();

@@ -54,15 +54,16 @@ int main(int argc, char* argv[])
     {
         auto start = std::chrono::high_resolution_clock::now();
 
-        Algorithm::DigitallyReconstructedRadiograph ddr;
-        ddr.SetInputImage(imageData);
-        ddr.SetImageRotation(90.0f, 0.0f, 0.0f);
-        ddr.SetOutputImageDimension(imageDimension[0], imageDimension[1], 1);
-        ddr.SetOutputSpacing(imageSpacing[0], imageSpacing[1], 1.0);
-        ddr.SetThreshold(180);
-        ddr.Update();
+        Algorithm::DigitallyReconstructedRadiograph drr;
+        drr.SetInputImage(imageData);
+        drr.SetImageRotation(90.0f, 0.0f, 0.0f);
+        drr.SetSourceToImageDistance(1000);
+        drr.SetOutputImageDimension(imageDimension[0], imageDimension[1], 1);
+        drr.SetOutputSpacing(imageSpacing[0], imageSpacing[1], 1.0);
+        drr.SetThreshold(100);
+        drr.Update();
 
-        outputImage = ddr.GetOutput();
+        outputImage = drr.GetOutput();
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
