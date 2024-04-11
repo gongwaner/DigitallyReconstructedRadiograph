@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
         drr.SetSourceToImageDistance(1000);
         drr.SetOutputImageDimension(imageDimension[0], imageDimension[1], 1);
         drr.SetOutputSpacing(imageSpacing[0], imageSpacing[1], 1.0);
-        drr.SetThreshold(100);
+        drr.SetThreshold(-10);
         drr.Update();
 
         outputImage = drr.GetOutput();
