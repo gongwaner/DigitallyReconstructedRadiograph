@@ -178,12 +178,17 @@ namespace TransformUtil
         return transformationMatrix;
     }
 
-    vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform)
+    vtkVector3d GetTransformedPoint(const double point[3], vtkMatrix4x4* transform)
     {
         vtkVector4d in(point[0], point[1], point[2], 1);
         double out[4];
         transform->MultiplyPoint(in.GetData(), out);
 
         return {out[0], out[1], out[2]};
+    }
+
+    vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform)
+    {
+        return GetTransformedPoint(point.GetData(), transform);
     }
 }

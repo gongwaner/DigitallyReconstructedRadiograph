@@ -45,11 +45,23 @@ namespace Algorithm
         mDefaultPixelValue = value;
     }
 
-    void DigitallyReconstructedRadiograph::SetImageRotation(const float rotX, const float rotY, const float rotZ)
+    void DigitallyReconstructedRadiograph::SetImageTranslation(const double transX, const double transY, const double transZ)
     {
-        mRotX = rotX;
-        mRotY = rotY;
-        mRotZ = rotZ;
+        mTranslation[0] = transX;
+        mTranslation[1] = transY;
+        mTranslation[2] = transZ;
+    }
+
+    void DigitallyReconstructedRadiograph::SetImageRotation(const double rotX, const double rotY, const double rotZ)
+    {
+        mRotation[0] = rotX;
+        mRotation[1] = rotY;
+        mRotation[2] = rotZ;
+    }
+
+    void DigitallyReconstructedRadiograph::SetImageTransform(vtkMatrix4x4* transform)
+    {
+        mTransform = transform;
     }
 
     void DigitallyReconstructedRadiograph::SetOutputImageDimension(const int dimX, const int dimY, const int dimZ)
@@ -82,9 +94,9 @@ namespace Algorithm
     void DigitallyReconstructedRadiograph::ComputeCenteredEuler3DTransform()
     {
         const double degreeToRadians = (std::atan(1.0) * 4.0) / 180.0;
-        auto angleX = degreeToRadians * mRotX;
-        auto angleY = degreeToRadians * mRotY;
-        auto angleZ = degreeToRadians * mRotZ;
+        auto angleX = degreeToRadians * mRotation[0];
+        auto angleY = degreeToRadians * mRotation[1];
+        auto angleZ = degreeToRadians * mRotation[2];
 
         mTransform = TransformUtil::GetTransformationMatrix(mImageCenter, mTranslation, angleX, angleY, angleZ);
     }
@@ -131,7 +143,7 @@ namespace Algorithm
                     outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
 
                     //corresponding input pixel position
-                    auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
                     double inputIndex[3];
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 

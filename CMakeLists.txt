@@ -26,15 +26,10 @@ set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response
 
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         Algorithm/DigitallyReconstructedRadiograph.cpp
-        Algorithm/DigitallyReconstructedRadiograph.h
         Algorithm/RayCastHelper.cpp
-        Algorithm/RayCastHelper.h
         Algorithm/RayCastInterpolateImageFunction.cpp
-        Algorithm/RayCastInterpolateImageFunction.h
         Utility/TestUtil.cpp
-        Utility/TestUtil.h
         Utility/Utility.cpp
-        Utility/Utility.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${VTK_LIBRARIES})

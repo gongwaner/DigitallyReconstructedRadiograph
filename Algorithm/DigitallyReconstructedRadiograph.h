@@ -17,7 +17,9 @@ namespace Algorithm
         void SetThreshold(double threshold);
         void SetSourceToImageDistance(float distance);
         void SetDefaultPixelValue(double value);
-        void SetImageRotation(float rotX, float rotY, float rotZ);
+        void SetImageTranslation(double transX, double transY, double transZ);
+        void SetImageRotation(double rotX, double rotY, double rotZ);
+        void SetImageTransform(vtkMatrix4x4* transform);
         void SetOutputImageDimension(int dimX, int dimY, int dimZ);
         void SetOutputImageDimension(const int dimensions[3]);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
@@ -35,12 +37,8 @@ namespace Algorithm
 
         vtkVector3d mImageCenter{0.0, 0.0, 0.0};
         vtkVector3d mTranslation{0.0, 0.0, 0.0};
+        vtkVector3d mRotation{0.0, 0.0, 0.0};
         vtkVector3d mFocalPoint{0.0, 0.0, 0.0};
-
-        //Rotation around x,y,z axis in degrees
-        float mRotX = 0.0f;
-        float mRotY = 0.0f;
-        float mRotZ = 0.0f;
 
         //ray cast parameters
         double mSourceToImageDistance = 400.0;
