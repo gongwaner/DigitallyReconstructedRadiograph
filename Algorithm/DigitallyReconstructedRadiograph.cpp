@@ -103,10 +103,7 @@ namespace Algorithm
 
     void DigitallyReconstructedRadiograph::ComputeFocalPoint()
     {
-        // The ray cast interpolator needs to know the initial position of the ray source or focal point.
-        // In this example we place the input volume at the origin and halfway between the ray source
-        // and the screen. The distance between the ray source and the screen is {mSourceToImageDistance}
-        // and specified by the user.
+        //ray source/focal point. used by interpolator
         mFocalPoint[0] = mImageCenter[0];
         mFocalPoint[1] = mImageCenter[1];
         mFocalPoint[2] = mImageCenter[2] - mSourceToImageDistance * 0.5;
@@ -131,12 +128,11 @@ namespace Algorithm
         interpolator.SetFocalPoint(mFocalPoint);
         interpolator.SetThreshold(mThreshold);
 
-        // Retrieve the entries from the image data and print them to the screen
-        for(int z = 0; z < outputImage->GetDimensions()[2]; z++)
+        for(int z = 0; z < mOutputDimension[2]; z++)
         {
-            for(int y = 0; y < outputImage->GetDimensions()[1]; y++)
+            for(int y = 0; y < mOutputDimension[1]; y++)
             {
-                for(int x = 0; x < outputImage->GetDimensions()[0]; x++)
+                for(int x = 0; x < mOutputDimension[0]; x++)
                 {
                     //current output point position
                     double outputPoint[3];
@@ -193,11 +189,11 @@ namespace Algorithm
         std::vector<short*> outPixelsVec;
         outPixelsVec.reserve(vectorSize);
 
-        for(int z = 0; z < outputImage->GetDimensions()[2]; z++)
+        for(int z = 0; z < mOutputDimension[2]; z++)
         {
-            for(int y = 0; y < outputImage->GetDimensions()[1]; y++)
+            for(int y = 0; y < mOutputDimension[1]; y++)
             {
-                for(int x = 0; x < outputImage->GetDimensions()[0]; x++)
+                for(int x = 0; x < mOutputDimension[0]; x++)
                 {
                     //current output point position
                     double outputPoint[3];
