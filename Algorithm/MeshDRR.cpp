@@ -1,13 +1,16 @@
 #include "MeshDRR.h"
 
-#include "MeshRayCastHelper.h"
 #include "../Utility/Utility.h"
+#include "../Utility/RayCastUtil.h"
 
 #include <vtkPolyData.h>
 #include <vtkImageData.h>
 #include <vtkVectorOperators.h>
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>
+#include <vtkOBBTree.h>
+
+#include <execution>
 
 
 namespace Algorithm
@@ -100,8 +103,8 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0],
-                   mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
+                   mOutputSpacing[2]);
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -109,9 +112,7 @@ namespace Algorithm
         outputImage->SetSpacing(mOutputSpacing.GetData());
         outputImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
 
-        MeshRayCastHelper rayCastHelper;
-        rayCastHelper.SetInputPolyData(mPolyData);
-        rayCastHelper.SetAttenuationCoefficient(mAttenuationCoefficient);
+        auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
 
         for(int z = 0; z < mOutputDimension[2]; z++)
         {
@@ -119,8 +120,6 @@ namespace Algorithm
             {
                 for(int x = 0; x < mOutputDimension[0]; x++)
                 {
-                    //std::cout << "x = " << x << ", y= " << y << ",z = " << z << std::endl;
-
                     //current output point position
                     double outputPoint[3];
                     outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
@@ -128,17 +127,74 @@ namespace Algorithm
                     //corresponding input pixel position
                     auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
 
-                    rayCastHelper.SetRay({mFocalPoint, inputPoint});
-
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
-                    *outPixel = (short) rayCastHelper.IntegrateAboveThreshold(mThreshold);
+                    *outPixel = (short) RayCastUtil::IntegrateAboveThreshold(obbTree, {mFocalPoint, inputPoint}, mAttenuationCoefficient);
                 }
             }
         }
 
         return outputImage;
     }
+
+#ifdef _WIN32
+    vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataPar() const
+    {
+        if(mDebug)
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
+                   mOutputSpacing[2]);
+
+        auto outputImage = vtkSmartPointer<vtkImageData>::New();
+        outputImage->SetOrigin(mOutputOrigin.GetData());
+        outputImage->SetDimensions(mOutputDimension.GetData());
+        outputImage->SetSpacing(mOutputSpacing.GetData());
+        outputImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
+
+        const auto vectorSize = mOutputDimension[0] * mOutputDimension[1] * mOutputDimension[2];
+        std::vector<vtkVector3d> inputPointsVec;
+        inputPointsVec.reserve(vectorSize);
+
+        std::vector<short*> outPixelsVec;
+        outPixelsVec.reserve(vectorSize);
+
+        for(int z = 0; z < mOutputDimension[2]; z++)
+        {
+            for(int y = 0; y < mOutputDimension[1]; y++)
+            {
+                for(int x = 0; x < mOutputDimension[0]; x++)
+                {
+                    //current output point position
+                    double outputPoint[3];
+                    outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
+
+                    //corresponding input pixel position
+                    auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
+                    inputPointsVec.push_back(inputPoint);
+
+                    //evaluate input at right position and copy to the output
+                    auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
+                    outPixelsVec.push_back(outPixel);
+                }
+            }
+        }
+
+        auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
+
+        std::vector<short> resultPixelValueVec(vectorSize);
+        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(), [this, &obbTree](const vtkVector3d& point)
+        {
+            return (short) RayCastUtil::IntegrateAboveThreshold(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+        });
+
+        for(int i = 0; i < resultPixelValueVec.size(); ++i)
+        {
+            auto ptr = outPixelsVec[i];
+            *ptr = resultPixelValueVec[i];
+        }
+
+        return outputImage;
+    }
+#endif
 
     void MeshDRR::Update()
     {
@@ -149,7 +205,11 @@ namespace Algorithm
         mOutputOrigin[1] = mPolyDataCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
         mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToOutputDistance * 0.5;
 
+#ifdef _WIN32
+        auto outputImage = GenerateOutputImageDataPar();
+#elif
         auto outputImage = GenerateOutputImageDataSeq();
+#endif
 
         //convert to unsigned short
         auto castFilter = vtkSmartPointer<vtkImageCast>::New();

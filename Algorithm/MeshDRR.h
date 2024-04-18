@@ -59,5 +59,6 @@ namespace Algorithm
         void ComputeFocalPoint();
 
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
+        vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };
 }

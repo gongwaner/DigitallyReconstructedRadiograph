@@ -33,7 +33,6 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         Utility/TestUtil.cpp
         Utility/Utility.cpp
         Algorithm/MeshDRR.cpp
-        Algorithm/MeshRayCastHelper.cpp
         Utility/RayCastUtil.cpp
 )
 
