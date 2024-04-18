@@ -11,6 +11,9 @@
 #include <filesystem>
 #include <vtkSTLReader.h>
 #include <vtkPointData.h>
+#include <vtkPLYReader.h>
+#include <vtkOBJReader.h>
+#include <vtkPolyDataReader.h>
 
 
 namespace IOUtil
@@ -42,15 +45,46 @@ namespace IOUtil
 
     vtkSmartPointer<vtkPolyData> ReadMesh(const char* fileDir)
     {
-        std::cout << "Reading " << fileDir << std::endl;
-
         if(!PathExist(fileDir))
-            throw std::runtime_error("ReadMesh(). Path does not exist!");
+            throw std::runtime_error("ReadPolyData(). Path does not exist!");
 
-        auto reader = vtkSmartPointer<vtkSTLReader>::New();
-        reader->SetFileName(fileDir);
-        reader->Update();
-        auto polyData = reader->GetOutput();
+        const auto path = std::filesystem::path(fileDir);
+        const auto extension = std::filesystem::path(fileDir).extension();
+        std::cout << "Reading " << path << std::endl;
+
+        vtkSmartPointer<vtkPolyData> polyData;
+        if(extension == ".ply")
+        {
+            auto reader = vtkSmartPointer<vtkPLYReader>::New();
+            reader->SetFileName(fileDir);
+            reader->Update();
+            polyData = reader->GetOutput();
+        }
+        else if(extension == ".obj")
+        {
+            auto reader = vtkSmartPointer<vtkOBJReader>::New();
+            reader->SetFileName(fileDir);
+            reader->Update();
+            polyData = reader->GetOutput();
+        }
+        else if(extension == ".stl")
+        {
+            auto reader = vtkSmartPointer<vtkSTLReader>::New();
+            reader->SetFileName(fileDir);
+            reader->Update();
+            polyData = reader->GetOutput();
+        }
+        else if(extension == ".vtk")
+        {
+            auto reader = vtkSmartPointer<vtkPolyDataReader>::New();
+            reader->SetFileName(fileDir);
+            reader->Update();
+            polyData = reader->GetOutput();
+        }
+        else
+        {
+            throw std::runtime_error("ReadPolyData(). ERROR: unsupported file extension!");
+        }
 
         printf("Poly data vertices cnt: %lld, cells cnt: %lld\n", polyData->GetNumberOfPoints(), polyData->GetNumberOfCells());
 
@@ -185,10 +219,9 @@ namespace TransformUtil
         return offset;
     }
 
-    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation, const double rotationAngleX, const double rotationAngleY,
-                                                          const double rotationAngleZ)
+    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation, const vtkVector3d& rotation)
     {
-        auto rotationMatrix = GetRotationMatrix(rotationAngleX, rotationAngleY, rotationAngleZ);
+        auto rotationMatrix = GetRotationMatrix(rotation[0], rotation[1], rotation[2]);
         auto offset = GetOffset(center, translation, rotationMatrix);
 
         auto transformationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();

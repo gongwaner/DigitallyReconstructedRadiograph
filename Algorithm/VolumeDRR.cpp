@@ -93,11 +93,7 @@ namespace Algorithm
     void VolumeDRR::ComputeCenteredEuler3DTransform()
     {
         const double degreeToRadians = (std::atan(1.0) * 4.0) / 180.0;
-        auto angleX = degreeToRadians * mRotation[0];
-        auto angleY = degreeToRadians * mRotation[1];
-        auto angleZ = degreeToRadians * mRotation[2];
-
-        mTransform = TransformUtil::GetTransformationMatrix(mImageCenter, mTranslation, angleX, angleY, angleZ);
+        mTransform = TransformUtil::GetTransformationMatrix(mImageCenter, mTranslation, degreeToRadians * mRotation);
     }
 
     void VolumeDRR::ComputeFocalPoint()

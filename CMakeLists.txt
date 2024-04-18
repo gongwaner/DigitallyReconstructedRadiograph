@@ -10,6 +10,7 @@ find_package(VTK COMPONENTS
         CommonDataModel
         IOGeometry
         IOImage
+        IOPLY
         InteractionImage
         InteractionStyle
         RenderingContextOpenGL2

@@ -24,8 +24,7 @@ namespace TransformUtil
 {
     vtkSmartPointer<vtkMatrix3x3> GetRotationMatrix(double rotationAngleX, double rotationAngleY, double rotationAngleZ);
     vtkVector3d GetOffset(const vtkVector3d& center, const vtkVector3d& translation, const vtkMatrix3x3* rotationMatrix);
-    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation,
-                                                          double rotationAngleX, double rotationAngleY, double rotationAngleZ);
+    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation, const vtkVector3d& rotation);
     vtkVector3d GetTransformedPoint(const double point[3], vtkMatrix4x4* transform);
     vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform);
 }
