@@ -207,7 +207,7 @@ namespace Algorithm
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();
-#elif
+#else
         auto outputImage = GenerateOutputImageDataSeq();
 #endif
 

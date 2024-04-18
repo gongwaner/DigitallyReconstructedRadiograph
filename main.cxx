@@ -49,7 +49,7 @@ void TestVolumeDRR(const std::filesystem::path& dataDir)
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 
-        std::cout << "ddr takes " << duration.count() << " ms" << std::endl;
+        std::cout << "volume ddr takes " << duration.count() << " ms" << std::endl;
 
         totalExecutionTime += duration.count();
     }
@@ -72,6 +72,8 @@ void TestMeshDRR(const std::filesystem::path& dataDir)
     auto dimension = MeshUtil::GetMeshDimension(polyData);
     std::cout << "dimension x = " << dimension[0] << ", dimensionY = " << dimension[1] << ", dimensionZ= " << dimension[2] << std::endl;
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     Algorithm::MeshDRR drr;
     drr.SetInputPolyData(polyData);
     drr.SetAttenuationCoefficient(1000);
@@ -79,6 +81,11 @@ void TestMeshDRR(const std::filesystem::path& dataDir)
     drr.Update();
 
     auto outputImage = drr.GetOutput();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+
+    std::cout << "mesh ddr takes " << duration.count() << " ms" << std::endl;
 
     auto outDir = dataDir;
     outDir = outDir.append("output");
