@@ -10,7 +10,7 @@ class vtkImageData;
 namespace Algorithm
 {
     //follows ITK DRR example: https://github.com/InsightSoftwareConsortium/ITK/blob/master/Examples/Filtering/DigitallyReconstructedRadiograph1.cxx
-    class DigitallyReconstructedRadiograph
+    class VolumeDRR
     {
     public:
         void SetInputImage(vtkImageData* imageData);
@@ -20,10 +20,10 @@ namespace Algorithm
         void SetImageTranslation(double transX, double transY, double transZ);
         void SetImageRotation(double rotX, double rotY, double rotZ);
         void SetImageTransform(vtkMatrix4x4* transform);
+        void SetOutputImageDimension(const vtkVector3i& dim);
         void SetOutputImageDimension(int dimX, int dimY, int dimZ);
-        void SetOutputImageDimension(const int dimensions[3]);
+        void SetOutputSpacing(const vtkVector3d& spacing);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
-        void SetOutputSpacing(const double spacing[3]);
 
         void Update();
 
@@ -47,9 +47,9 @@ namespace Algorithm
 
         //output 2D DRR image
         vtkSmartPointer<vtkImageData> mOutputImageData = nullptr;
-        vtkVector3d mOutputOrigin = vtkVector3d(0, 0, 0);
-        int mOutputDimension[3]{512, 512, 1};
-        double mOutputSpacing[3]{1.0, 1.0, 1.0};
+        vtkVector3d mOutputOrigin{0.0, 0.0, 0.0};
+        vtkVector3i mOutputDimension{512, 512, 1};
+        vtkVector3d mOutputSpacing{1.0, 1.0, 1.0};
         double mDefaultPixelValue = 0.0;
 
         void ComputeCenteredEuler3DTransform();

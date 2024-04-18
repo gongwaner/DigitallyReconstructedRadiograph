@@ -3,11 +3,14 @@
 #include <vtkSmartPointer.h>
 #include <vtkDICOMImageReader.h>
 #include <vtkPNGWriter.h>
+#include <vtkPolyData.h>
 #include <vtkImageData.h>
 #include <vtkMatrix3x3.h>
 #include <vtkMatrix4x4.h>
 
 #include <filesystem>
+#include <vtkSTLReader.h>
+#include <vtkPointData.h>
 
 
 namespace IOUtil
@@ -35,6 +38,23 @@ namespace IOUtil
         }
 
         return true;
+    }
+
+    vtkSmartPointer<vtkPolyData> ReadMesh(const char* fileDir)
+    {
+        std::cout << "Reading " << fileDir << std::endl;
+
+        if(!PathExist(fileDir))
+            throw std::runtime_error("ReadMesh(). Path does not exist!");
+
+        auto reader = vtkSmartPointer<vtkSTLReader>::New();
+        reader->SetFileName(fileDir);
+        reader->Update();
+        auto polyData = reader->GetOutput();
+
+        printf("Poly data vertices cnt: %lld, cells cnt: %lld\n", polyData->GetNumberOfPoints(), polyData->GetNumberOfCells());
+
+        return polyData;
     }
 
     vtkSmartPointer<vtkImageData> ReadImageDataFromFolder(const char* folder)
@@ -69,6 +89,19 @@ namespace IOUtil
         writer->SetFileName(fileDir);
         writer->SetInputData(imageData);
         writer->Write();
+    }
+}
+
+namespace CommonUtil
+{
+    void Print(const std::string& msg, const double vec[3])
+    {
+        std::cout << msg << vec[0] << ", " << vec[1] << ", " << vec[2] << std::endl;
+    }
+
+    void Print(const std::string& msg, const vtkVector3d& vec)
+    {
+        Print(msg, vec.GetData());
     }
 }
 
@@ -152,8 +185,8 @@ namespace TransformUtil
         return offset;
     }
 
-    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation,
-                                                          const double rotationAngleX, const double rotationAngleY, const double rotationAngleZ)
+    vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation, const double rotationAngleX, const double rotationAngleY,
+                                                          const double rotationAngleZ)
     {
         auto rotationMatrix = GetRotationMatrix(rotationAngleX, rotationAngleY, rotationAngleZ);
         auto offset = GetOffset(center, translation, rotationMatrix);
@@ -190,5 +223,18 @@ namespace TransformUtil
     vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform)
     {
         return GetTransformedPoint(point.GetData(), transform);
+    }
+}
+
+namespace MeshUtil
+{
+    vtkVector3d GetMeshDimension(vtkPolyData* polyData)
+    {
+        auto polyBounds = polyData->GetBounds();
+        const auto dimensionX = polyBounds[1] - polyBounds[0];
+        const auto dimensionY = polyBounds[3] - polyBounds[2];
+        const auto dimensionZ = polyBounds[5] - polyBounds[4];
+
+        return {dimensionX, dimensionY, dimensionZ};
     }
 }

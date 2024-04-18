@@ -1,6 +1,6 @@
 #include "RayCastInterpolateImageFunction.h"
 
-#include "RayCastHelper.h"
+#include "VolumeRayCastHelper.h"
 #include "../Utility/Utility.h"
 
 #include <vtkImageData.h>
@@ -45,7 +45,7 @@ namespace Algorithm
 
         double integral = 0.0;
 
-        RayCastHelper ray;
+        VolumeRayCastHelper ray;
         ray.SetImage(mImageData);
         ray.SetRay(rayPosition, direction);
         ray.IntegrateAboveThreshold(integral, mThreshold);

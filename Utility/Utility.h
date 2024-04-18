@@ -2,15 +2,22 @@
 
 #include <vtkVector.h>
 
-
+class vtkPolyData;
 class vtkImageData;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 
 namespace IOUtil
 {
+    vtkSmartPointer<vtkPolyData> ReadMesh(const char* fileDir);
     vtkSmartPointer<vtkImageData> ReadImageDataFromFolder(const char* folder);
     void WritePng(const char* fileDir, vtkImageData* imageData);
+}
+
+namespace CommonUtil
+{
+    void Print(const std::string& msg, const double vec[3]);
+    void Print(const std::string& msg, const vtkVector3d& vec);
 }
 
 namespace TransformUtil
@@ -21,4 +28,9 @@ namespace TransformUtil
                                                           double rotationAngleX, double rotationAngleY, double rotationAngleZ);
     vtkVector3d GetTransformedPoint(const double point[3], vtkMatrix4x4* transform);
     vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform);
+}
+
+namespace MeshUtil
+{
+    vtkVector3d GetMeshDimension(vtkPolyData* polyData);
 }

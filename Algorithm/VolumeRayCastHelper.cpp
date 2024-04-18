@@ -1,4 +1,4 @@
-#include "RayCastHelper.h"
+#include "VolumeRayCastHelper.h"
 
 #include <vtkImageData.h>
 #include <vtkVectorOperators.h>
@@ -64,7 +64,7 @@ namespace Algorithm
         return {};
     }
 
-    void RayCastHelper::SetImage(vtkImageData* input)
+    void VolumeRayCastHelper::SetImage(vtkImageData* input)
     {
         mImage = input;
         const auto spacing = mImage->GetSpacing();
@@ -80,7 +80,7 @@ namespace Algorithm
         CalculateBoundingPlane();
     }
 
-    void RayCastHelper::DefineCorners()
+    void VolumeRayCastHelper::DefineCorners()
     {
         const int numOfCorners = 8;
         mBoundingCorner.resize(numOfCorners);
@@ -99,7 +99,7 @@ namespace Algorithm
         mBoundingCorner[7] = vtkVector3d(x, y, 0);//bottom right back
     }
 
-    void RayCastHelper::CalculateBoundingPlane()
+    void VolumeRayCastHelper::CalculateBoundingPlane()
     {
         const int numOfPlanes = 6;
         mBoundingPlane.resize(numOfPlanes);
@@ -120,7 +120,7 @@ namespace Algorithm
 
             if(abs(cross[0] * cross[0] + cross[1] * cross[1] + cross[2] * cross[2]) <= 1e-6)
             {
-                throw std::runtime_error("ERROR! RayCastHelper::CalcPlanesAndCorners() Divide by zero plane!");
+                throw std::runtime_error("ERROR! VolumeRayCastHelper::CalcPlanesAndCorners() Divide by zero plane!");
             }
 
             // find constant
@@ -136,8 +136,8 @@ namespace Algorithm
         }
     }
 
-    bool RayCastHelper::CalcRayIntercepts(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection,
-                                          vtkVector3d& rayStartCoord, vtkVector3d& rayEndCoord) const
+    bool VolumeRayCastHelper::CalcRayIntercepts(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection,
+                                                vtkVector3d& rayStartCoord, vtkVector3d& rayEndCoord) const
     {
         // Calculate ray-plane interception points
         const int numOfPlanes = 6;
@@ -260,7 +260,7 @@ namespace Algorithm
         return false;
     }
 
-    void RayCastHelper::InitializeVoxelPointers()
+    void VolumeRayCastHelper::InitializeVoxelPointers()
     {
         for(int i = 0; i < 3; ++i)
         {
@@ -308,14 +308,14 @@ namespace Algorithm
         }
         else
         {
-            throw std::runtime_error("RayCastHelper::InitializeVoxelPointers(). Traversal direction undefined!");
+            throw std::runtime_error("VolumeRayCastHelper::InitializeVoxelPointers(). Traversal direction undefined!");
         }
     }
 
     /**
      * Reset the iterator to the start of the ray.
      */
-    void RayCastHelper::Reset()
+    void VolumeRayCastHelper::Reset()
     {
         if(mIsValidRay)
         {
@@ -348,7 +348,7 @@ namespace Algorithm
      * This routine also shifts the coordinate frame by half a voxel for two of the
      * directional components (i.e. those lying within the planes of voxels being traversed)
      */
-    void RayCastHelper::CalcDirectionVector()
+    void VolumeRayCastHelper::CalcDirectionVector()
     {
         // Calculate the number of voxels in each direction
         vtkVector3d diff;
@@ -406,7 +406,7 @@ namespace Algorithm
     * Ensure that the ray lies within the volume by reducing the length of the ray
     * until both start and end coordinates lie inside the volume
     */
-    bool RayCastHelper::AdjustRayLength()
+    bool VolumeRayCastHelper::AdjustRayLength()
     {
         vtkVector3i direction;
         if(mTraversalDirection == TraversalDirection::TRANSVERSE_IN_X)
@@ -446,7 +446,7 @@ namespace Algorithm
         return (startOK && endOK);
     }
 
-    bool RayCastHelper::SetRay(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection)
+    bool VolumeRayCastHelper::SetRay(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection)
     {
         // Compute the ray path for this coordinate in mm
         vtkVector3d rayStartCoordInMM, rayEndCoordInMM;
@@ -466,7 +466,7 @@ namespace Algorithm
         return mIsValidRay;
     }
 
-    double RayCastHelper::GetCurrentIntensity() const
+    double VolumeRayCastHelper::GetCurrentIntensity() const
     {
         if(!mIsValidRay)
             return 0.0;
@@ -494,13 +494,13 @@ namespace Algorithm
         }
         else
         {
-            //throw std::runtime_error("RayCastHelper::GetCurrentIntensity(). The ray traversal direction is unset");
+            //throw std::runtime_error("VolumeRayCastHelper::GetCurrentIntensity(). The ray traversal direction is unset");
         }
 
         return a + b * y + c * z + d * y * z;
     }
 
-    void RayCastHelper::IncrementVoxelPointers()
+    void VolumeRayCastHelper::IncrementVoxelPointers()
     {
         vtkVector3d prev;
         for(int i = 0; i < 3; ++i)
@@ -522,7 +522,7 @@ namespace Algorithm
             element += totalRayVoxelPlanes;
     }
 
-    double RayCastHelper::GetRayPointSpacing() const
+    double VolumeRayCastHelper::GetRayPointSpacing() const
     {
         if(mIsValidRay)
         {
@@ -534,7 +534,7 @@ namespace Algorithm
         return 0.0;
     }
 
-    bool RayCastHelper::IntegrateAboveThreshold(double& integral, const double threshold)
+    bool VolumeRayCastHelper::IntegrateAboveThreshold(double& integral, const double threshold)
     {
         if(!mIsValidRay)
             return false;

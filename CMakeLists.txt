@@ -7,6 +7,8 @@ project(DRR)
 find_package(VTK COMPONENTS
         CommonColor
         CommonCore
+        CommonDataModel
+        IOGeometry
         IOImage
         InteractionImage
         InteractionStyle
@@ -25,11 +27,14 @@ endif ()
 set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response files.")
 
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
-        Algorithm/DigitallyReconstructedRadiograph.cpp
-        Algorithm/RayCastHelper.cpp
+        Algorithm/VolumeDRR.cpp
+        Algorithm/VolumeRayCastHelper.cpp
         Algorithm/RayCastInterpolateImageFunction.cpp
         Utility/TestUtil.cpp
         Utility/Utility.cpp
+        Algorithm/MeshDRR.cpp
+        Algorithm/MeshRayCastHelper.cpp
+        Utility/RayCastUtil.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${VTK_LIBRARIES})

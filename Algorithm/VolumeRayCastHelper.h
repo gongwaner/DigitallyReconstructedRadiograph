@@ -17,7 +17,7 @@ namespace Algorithm
         TRANSVERSE_IN_Z = 2,
     };
 
-    class RayCastHelper
+    class VolumeRayCastHelper
     {
     public:
         void SetImage(vtkImageData* imageData);
