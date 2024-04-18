@@ -29,7 +29,6 @@ set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         Algorithm/VolumeDRR.cpp
         Algorithm/VolumeRayCastHelper.cpp
-        Algorithm/RayCastInterpolateImageFunction.cpp
         Utility/TestUtil.cpp
         Utility/Utility.cpp
         Algorithm/MeshDRR.cpp

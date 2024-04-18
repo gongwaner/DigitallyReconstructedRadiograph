@@ -55,6 +55,7 @@ namespace Algorithm
         void ComputeCenteredEuler3DTransform();
         void ComputeFocalPoint();
 
+        double Evaluate(const vtkVector3d& point) const;
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };

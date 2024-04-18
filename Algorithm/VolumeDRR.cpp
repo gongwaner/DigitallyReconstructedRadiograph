@@ -1,11 +1,12 @@
 #include "VolumeDRR.h"
 
-#include "RayCastInterpolateImageFunction.h"
 #include "../Utility/Utility.h"
+#include "VolumeRayCastHelper.h"
 
 #include <vtkImageData.h>
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>
+#include <vtkVectorOperators.h>
 
 #include <execution>
 
@@ -22,8 +23,9 @@ namespace Algorithm
 
         if(mDebug)
         {
-            printf("Input image dimension: %d, %d, %d, spacing: %f, %f, %f\n", imageDimension[0], imageDimension[1], imageDimension[2], imageSpacing[0], imageSpacing[1],
-                   imageSpacing[2]);
+            printf("Input image dimension: %d, %d, %d, spacing: %f, %f, %f\n",
+                   imageDimension[0], imageDimension[1], imageDimension[2],
+                   imageSpacing[0], imageSpacing[1], imageSpacing[2]);
         }
 
         for(int i = 0; i < 3; ++i)
@@ -104,13 +106,38 @@ namespace Algorithm
         mFocalPoint[0] = mImageCenter[0];
         mFocalPoint[1] = mImageCenter[1];
         mFocalPoint[2] = mImageCenter[2] - mSourceToImageDistance * 0.5;
+
+        mFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);
+    }
+
+    double VolumeDRR::Evaluate(const vtkVector3d& point) const
+    {
+        const auto origin = mImageData->GetOrigin();
+        const auto spacing = mImageData->GetSpacing();
+        auto rayPosition = point;
+        for(int i = 0; i < 3; ++i)
+        {
+            rayPosition[i] -= origin[i] - 0.5 * spacing[i];
+        }
+
+        const auto direction = (mFocalPoint - point).Normalized();
+
+        double integral = 0.0;
+
+        VolumeRayCastHelper ray;
+        ray.SetImage(mImageData);
+        ray.SetRay(rayPosition, direction);
+        ray.IntegrateAboveThreshold(integral, mThreshold);
+
+        return integral;
     }
 
     //ref: https://github.com/InsightSoftwareConsortium/ITK/blob/12328e1d2ff8becab001654dccbb393657521691/Modules/Filtering/ImageGrid/include/itkResampleImageFilter.hxx#L369
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
+                   mOutputSpacing[0], mOutputSpacing[1],
                    mOutputSpacing[2]);
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
@@ -119,12 +146,7 @@ namespace Algorithm
         outputImage->SetSpacing(mOutputSpacing.GetData());
         outputImage->AllocateScalars(mImageData->GetScalarType(), 1);
 
-        RayCastInterpolateImageFunction interpolator;
-        interpolator.SetImageData(mImageData);
-        interpolator.SetTransform(mTransform);
-        interpolator.SetFocalPoint(mFocalPoint);
-        interpolator.SetThreshold(mThreshold);
-
+        //iterate through every pixel in detector
         for(int z = 0; z < mOutputDimension[2]; z++)
         {
             for(int y = 0; y < mOutputDimension[1]; y++)
@@ -144,7 +166,7 @@ namespace Algorithm
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
 
                     //if(interpolator->IsInsideBuffer(inputIndex)
-                    *outPixel = (short) interpolator.EvaluateAtContinuousIndex(inputIndex);
+                    *outPixel = (short) Evaluate(inputPoint);
                     //else
                     //outPixel[0] = mDefaultPixelValue;
                 }
@@ -155,7 +177,6 @@ namespace Algorithm
     }
 
 #ifdef _WIN32
-
     /**
      * parallel version of DDR calculation using parallel STL
      * currently available only on WIN
@@ -163,8 +184,9 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataPar() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
-                   mOutputSpacing[2]);
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n",
+                   mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
+                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -172,17 +194,11 @@ namespace Algorithm
         outputImage->SetSpacing(mOutputSpacing.GetData());
         outputImage->AllocateScalars(mImageData->GetScalarType(), 1);
 
-        RayCastInterpolateImageFunction interpolator;
-        interpolator.SetImageData(mImageData);
-        interpolator.SetTransform(mTransform);
-        interpolator.SetFocalPoint(mFocalPoint);
-        interpolator.SetThreshold(mThreshold);
-
         auto start = std::chrono::high_resolution_clock::now();
 
         const auto vectorSize = mOutputDimension[0] * mOutputDimension[1] * mOutputDimension[2];
-        std::vector<vtkVector3d> inputIndicesVec;
-        inputIndicesVec.reserve(vectorSize);
+        std::vector<vtkVector3d> inputPointsVec;
+        inputPointsVec.reserve(vectorSize);
 
         std::vector<short*> outPixelsVec;
         outPixelsVec.reserve(vectorSize);
@@ -199,9 +215,7 @@ namespace Algorithm
 
                     //corresponding input pixel position
                     const auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
-                    double inputIndex[3];
-                    mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
-                    inputIndicesVec.emplace_back(inputIndex);
+                    inputPointsVec.emplace_back(inputPoint);
 
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
                     outPixelsVec.push_back(outPixel);
@@ -210,10 +224,11 @@ namespace Algorithm
         }
 
         std::vector<short> resultPixelValueVec(vectorSize);
-        std::transform(std::execution::par, inputIndicesVec.begin(), inputIndicesVec.end(), resultPixelValueVec.begin(), [&interpolator](const vtkVector3d& inputIndex)
-        {
-            return (short) interpolator.EvaluateAtContinuousIndex(inputIndex.GetData());
-        });
+        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
+                       [this](const vtkVector3d& point)
+                       {
+                           return (short) Evaluate(point);
+                       });
 
         for(int i = 0; i < resultPixelValueVec.size(); ++i)
         {
@@ -227,7 +242,6 @@ namespace Algorithm
 
         return outputImage;
     }
-
 #endif
 
     void VolumeDRR::Update()
