@@ -38,7 +38,7 @@ void TestVolumeDRR(const std::filesystem::path& dataDir)
         Algorithm::VolumeDRR drr;
         drr.SetInputImage(imageData);
         drr.SetImageRotation(90.0f, 0.0f, 0.0f);
-        drr.SetSourceToImageDistance(1000);
+        drr.SetSourceToImageDistance(500);
         drr.SetOutputImageDimension(imageDimension[0], imageDimension[1], 1);
         drr.SetOutputSpacing(imageSpacing[0], imageSpacing[1], 1.0);
         drr.SetThreshold(-10);

@@ -101,7 +101,7 @@ namespace Algorithm
         //ray source/focal point. used by interpolator
         mFocalPoint[0] = mImageCenter[0];
         mFocalPoint[1] = mImageCenter[1];
-        mFocalPoint[2] = mImageCenter[2] - mSourceToImageDistance * 0.5;
+        mFocalPoint[2] = mImageCenter[2] - mSourceToImageDistance;
 
         mFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);
     }
@@ -243,7 +243,7 @@ namespace Algorithm
 
         mOutputOrigin[0] = mImageCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mImageCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
-        mOutputOrigin[2] = mImageCenter[2] + mImageToDetectorDistance * 0.5;
+        mOutputOrigin[2] = mImageCenter[2] + mImageToDetectorDistance;
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();

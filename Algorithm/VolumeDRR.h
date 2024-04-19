@@ -41,8 +41,8 @@ namespace Algorithm
         vtkVector3d mFocalPoint{0.0, 0.0, 0.0};
 
         //ray cast parameters
-        double mSourceToImageDistance = 400.0;
-        double mImageToDetectorDistance = 400.0;
+        double mSourceToImageDistance = 200.0;
+        double mImageToDetectorDistance = 200.0;
         double mThreshold = 0.0;
 
         //output 2D DRR image

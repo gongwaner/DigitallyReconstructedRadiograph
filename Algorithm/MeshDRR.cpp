@@ -90,7 +90,7 @@ namespace Algorithm
         // ray source/focal point.
         mFocalPoint[0] = mPolyDataCenter[0];
         mFocalPoint[1] = mPolyDataCenter[1];
-        mFocalPoint[2] = mPolyDataCenter[2] - mSourceToMeshDistance * 0.5;
+        mFocalPoint[2] = mPolyDataCenter[2] - mSourceToMeshDistance;
 
         mFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);
     }
@@ -198,7 +198,7 @@ namespace Algorithm
 
         mOutputOrigin[0] = mPolyDataCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mPolyDataCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
-        mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToDetectorDistance * 0.5;
+        mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToDetectorDistance;
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();

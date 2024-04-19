@@ -43,8 +43,8 @@ namespace Algorithm
         vtkVector3d mFocalPoint{0.0, 0.0, 0.0};
 
         //ray cast parameters
-        double mSourceToMeshDistance = 400.0;
-        double mMeshToDetectorDistance = 400.0;
+        double mSourceToMeshDistance = 200.0;
+        double mMeshToDetectorDistance = 200.0;
 
         //output 2D DRR image
         vtkSmartPointer<vtkImageData> mOutputImageData = nullptr;
