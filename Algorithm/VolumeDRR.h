@@ -42,7 +42,7 @@ namespace Algorithm
 
         //ray cast parameters
         double mSourceToImageDistance = 400.0;
-        double mImageToOutputDistance = 400.0;
+        double mImageToDetectorDistance = 400.0;
         double mThreshold = 0.0;
 
         //output 2D DRR image

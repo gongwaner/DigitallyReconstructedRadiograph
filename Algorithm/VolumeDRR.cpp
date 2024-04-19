@@ -160,11 +160,7 @@ namespace Algorithm
 
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
-
-                    //if(interpolator->IsInsideBuffer(inputIndex)
                     *outPixel = (short) Evaluate(inputPoint);
-                    //else
-                    //outPixel[0] = mDefaultPixelValue;
                 }
             }
         }
@@ -245,13 +241,9 @@ namespace Algorithm
         ComputeCenteredEuler3DTransform();
         ComputeFocalPoint();
 
-        // The default position of the input volume, prior to its transformation is
-        // half-way between the ray source and screen and unless specified
-        // otherwise the normal from the "screen" to the ray source passes
-        // directly through the centre of the DRR.
         mOutputOrigin[0] = mImageCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mImageCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
-        mOutputOrigin[2] = mImageCenter[2] + mImageToOutputDistance * 0.5;
+        mOutputOrigin[2] = mImageCenter[2] + mImageToDetectorDistance * 0.5;
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();

@@ -18,7 +18,6 @@ namespace Algorithm
         void SetTranslation(double transX, double transY, double transZ);
         void SetRotation(double rotX, double rotY, double rotZ);
         void SetTransform(vtkMatrix4x4* transform);
-        void SetThreshold(double threshold);
         void SetSourceToMeshDistance(float distance);
         void SetDefaultPixelValue(double value);
         void SetOutputImageDimension(const vtkVector3i& dim);
@@ -45,8 +44,7 @@ namespace Algorithm
 
         //ray cast parameters
         double mSourceToMeshDistance = 400.0;
-        double mMeshToOutputDistance = 400.0;
-        double mThreshold = 0.0;
+        double mMeshToDetectorDistance = 400.0;
 
         //output 2D DRR image
         vtkSmartPointer<vtkImageData> mOutputImageData = nullptr;

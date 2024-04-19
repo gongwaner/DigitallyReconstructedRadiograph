@@ -45,11 +45,6 @@ namespace Algorithm
         mTransform = transform;
     }
 
-    void MeshDRR::SetThreshold(const double threshold)
-    {
-        mThreshold = threshold;
-    }
-
     void MeshDRR::SetSourceToMeshDistance(const float distance)
     {
         mSourceToMeshDistance = distance;
@@ -129,7 +124,7 @@ namespace Algorithm
 
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
-                    *outPixel = (short) RayCastUtil::IntegrateAboveThreshold(obbTree, {mFocalPoint, inputPoint}, mAttenuationCoefficient);
+                    *outPixel = (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, inputPoint}, mAttenuationCoefficient);
                 }
             }
         }
@@ -183,7 +178,7 @@ namespace Algorithm
         std::vector<short> resultPixelValueVec(vectorSize);
         std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(), [this, &obbTree](const vtkVector3d& point)
         {
-            return (short) RayCastUtil::IntegrateAboveThreshold(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+            return (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
         });
 
         for(int i = 0; i < resultPixelValueVec.size(); ++i)
@@ -203,7 +198,7 @@ namespace Algorithm
 
         mOutputOrigin[0] = mPolyDataCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mPolyDataCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;
-        mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToOutputDistance * 0.5;
+        mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToDetectorDistance * 0.5;
 
 #ifdef _WIN32
         auto outputImage = GenerateOutputImageDataPar();

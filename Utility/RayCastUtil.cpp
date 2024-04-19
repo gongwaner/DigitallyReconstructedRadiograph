@@ -39,7 +39,7 @@ namespace RayCastUtil
         return intersectedPntsVec;
     }
 
-    double IntegrateAboveThreshold(vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient)
+    double IntegrateEnergy(vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient)
     {
         double attenuationSum = 0.0;
 
