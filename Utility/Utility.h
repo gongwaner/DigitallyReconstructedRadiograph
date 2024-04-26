@@ -11,7 +11,7 @@ namespace IOUtil
 {
     vtkSmartPointer<vtkPolyData> ReadMesh(const char* fileDir);
     vtkSmartPointer<vtkImageData> ReadImageDataFromFolder(const char* folder);
-    void WritePng(const char* fileDir, vtkImageData* imageData);
+    void WritePng(const char* fileDir, vtkImageData* imageData, bool isUnsignedShort = true);
 }
 
 namespace CommonUtil

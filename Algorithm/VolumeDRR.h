@@ -9,7 +9,7 @@ class vtkImageData;
 
 namespace Algorithm
 {
-    //follows ITK DRR example: https://github.com/InsightSoftwareConsortium/ITK/blob/master/Examples/Filtering/DigitallyReconstructedRadiograph1.cxx
+    //reference ITK DRR example: https://github.com/InsightSoftwareConsortium/ITK/blob/master/Examples/Filtering/DigitallyReconstructedRadiograph1.cxx
     class VolumeDRR
     {
     public:

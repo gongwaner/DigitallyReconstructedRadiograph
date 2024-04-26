@@ -1,7 +1,6 @@
 #pragma  once
 
 #include <vtkVector.h>
-
 #include <vector>
 
 
@@ -22,6 +21,7 @@ namespace Algorithm
     public:
         void SetImage(vtkImageData* imageData);
         bool SetRay(const vtkVector3d& rayOrigin, const vtkVector3d& rayDirection);
+        void SetAttenuationCoefficient(double attenuationCoefficient);
         bool IntegrateAboveThreshold(double& integral, double threshold);
 
     private:
@@ -43,6 +43,8 @@ namespace Algorithm
 
         const short* mRayIntersectionVoxels[4]{nullptr, nullptr, nullptr, nullptr};
         vtkVector3i mRayIntersectionVoxelIndex{0, 0, 0};
+
+        double mAttenuationCoefficient = 1.0;
 
 
         void DefineCorners();

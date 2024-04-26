@@ -466,6 +466,11 @@ namespace Algorithm
         return mIsValidRay;
     }
 
+    void VolumeRayCastHelper::SetAttenuationCoefficient(const double attenuationCoefficient)
+    {
+        mAttenuationCoefficient = attenuationCoefficient;
+    }
+
     double VolumeRayCastHelper::GetCurrentIntensity() const
     {
         if(!mIsValidRay)
@@ -555,7 +560,7 @@ namespace Algorithm
         //The ray passes through the volume one plane of voxels at a time
         // however, if its moving diagonally the ray points will be further apart
         // so account for this by scaling by the distance moved.
-        integral = sum * GetRayPointSpacing();
+        integral = sum * GetRayPointSpacing() * mAttenuationCoefficient;
 
         return true;
     }

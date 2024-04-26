@@ -5,7 +5,6 @@
 
 #include <vtkImageData.h>
 #include <vtkImageIterator.h>
-#include <vtkImageCast.h>
 #include <vtkVectorOperators.h>
 
 #include <execution>
@@ -98,7 +97,6 @@ namespace Algorithm
 
     void VolumeDRR::ComputeFocalPoint()
     {
-        //ray source/focal point. used by interpolator
         mFocalPoint[0] = mImageCenter[0];
         mFocalPoint[1] = mImageCenter[1];
         mFocalPoint[2] = mImageCenter[2] - mSourceToImageDistance;
@@ -246,18 +244,10 @@ namespace Algorithm
         mOutputOrigin[2] = mImageCenter[2] + mImageToDetectorDistance;
 
 #ifdef _WIN32
-        auto outputImage = GenerateOutputImageDataPar();
+        mOutputImageData = GenerateOutputImageDataPar();
 #else
-        auto outputImage = GenerateOutputImageDataSeq();
+        mOutputImageData = GenerateOutputImageDataSeq();
 #endif
-
-        //convert to unsigned short
-        auto castFilter = vtkSmartPointer<vtkImageCast>::New();
-        castFilter->SetOutputScalarTypeToUnsignedShort();
-        castFilter->SetInputData(outputImage);
-        castFilter->Update();
-
-        mOutputImageData = castFilter->GetOutput();
     }
 
     vtkSmartPointer<vtkImageData> VolumeDRR::GetOutput() const

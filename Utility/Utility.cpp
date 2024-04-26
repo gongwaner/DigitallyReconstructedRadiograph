@@ -14,6 +14,7 @@
 #include <vtkPLYReader.h>
 #include <vtkOBJReader.h>
 #include <vtkPolyDataReader.h>
+#include <vtkImageCast.h>
 
 
 namespace IOUtil
@@ -108,7 +109,7 @@ namespace IOUtil
         return reader->GetOutput();
     }
 
-    void WritePng(const char* fileDir, vtkImageData* imageData)
+    void WritePng(const char* fileDir, vtkImageData* imageData, const bool isUnsignedShort)
     {
         if(!IsValidDirectory(fileDir))
         {
@@ -119,9 +120,16 @@ namespace IOUtil
             std::filesystem::create_directories(parentDir);
         }
 
+        //png only supports unsigned char/short
+        auto castFilter = vtkSmartPointer<vtkImageCast>::New();
+        castFilter->SetInputData(imageData);
+        isUnsignedShort ? castFilter->SetOutputScalarTypeToUnsignedShort() : castFilter->SetOutputScalarTypeToUnsignedChar();
+        castFilter->Update();
+        auto output = castFilter->GetOutput();
+
         auto writer = vtkSmartPointer<vtkPNGWriter>::New();
         writer->SetFileName(fileDir);
-        writer->SetInputData(imageData);
+        writer->SetInputData(output);
         writer->Write();
     }
 }

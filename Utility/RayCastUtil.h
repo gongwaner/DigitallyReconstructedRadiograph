@@ -3,6 +3,7 @@
 #include <vector>
 #include <vtkVector.h>
 
+
 class vtkOBBTree;
 
 class vtkPolyData;
