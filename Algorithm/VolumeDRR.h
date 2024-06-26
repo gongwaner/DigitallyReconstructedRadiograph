@@ -25,11 +25,14 @@ namespace Algorithm
         void SetOutputSpacing(const vtkVector3d& spacing);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
 
+        void SetProjectionToPerspective();
+        void SetProjectionToOrthographic();
+        void SetDebugModeOn();
+
         void Update();
 
         vtkSmartPointer<vtkImageData> GetOutput() const;
 
-        bool mDebug = false;
 
     private:
         vtkImageData* mImageData = nullptr;
@@ -52,10 +55,19 @@ namespace Algorithm
         vtkVector3d mOutputSpacing{1.0, 1.0, 1.0};
         double mDefaultPixelValue = 0.0;
 
+        //projection mode
+        bool mPerspectiveProjection = true;//false means orthographic projection
+
+        //debug flag
+        bool mDebug = false;
+
+
         void ComputeCenteredEuler3DTransform();
         void ComputeFocalPoint();
 
-        double Evaluate(const vtkVector3d& point) const;
+        vtkVector3d GetOrthographicRayDirection() const;
+        double GetIntegral(const vtkVector3d& point) const;
+
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };

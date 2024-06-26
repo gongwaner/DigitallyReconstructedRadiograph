@@ -27,6 +27,7 @@ namespace TransformUtil
     vtkSmartPointer<vtkMatrix4x4> GetTransformationMatrix(const vtkVector3d& center, const vtkVector3d& translation, const vtkVector3d& rotation);
     vtkVector3d GetTransformedPoint(const double point[3], vtkMatrix4x4* transform);
     vtkVector3d GetTransformedPoint(const vtkVector3d& point, vtkMatrix4x4* transform);
+    vtkVector3d GetTransformedVector(const vtkVector3d& vec, vtkMatrix4x4* transformMat);
 }
 
 namespace MeshUtil

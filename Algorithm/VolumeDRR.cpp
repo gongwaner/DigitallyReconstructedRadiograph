@@ -84,6 +84,21 @@ namespace Algorithm
         mOutputSpacing[2] = spacingZ;
     }
 
+    void VolumeDRR::SetProjectionToPerspective()
+    {
+        mPerspectiveProjection = true;
+    }
+
+    void VolumeDRR::SetProjectionToOrthographic()
+    {
+        mPerspectiveProjection = false;
+    }
+
+    void VolumeDRR::SetDebugModeOn()
+    {
+        mDebug = true;
+    }
+
     void VolumeDRR::SetOutputSpacing(const vtkVector3d& spacing)
     {
         mOutputSpacing = spacing;
@@ -104,7 +119,13 @@ namespace Algorithm
         mFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);
     }
 
-    double VolumeDRR::Evaluate(const vtkVector3d& point) const
+    vtkVector3d VolumeDRR::GetOrthographicRayDirection() const
+    {
+        const vtkVector3d axisZ{0, 0, 1};
+        return TransformUtil::GetTransformedVector(axisZ, mTransform);
+    }
+
+    double VolumeDRR::GetIntegral(const vtkVector3d& point) const
     {
         const auto origin = mImageData->GetOrigin();
         const auto spacing = mImageData->GetSpacing();
@@ -114,7 +135,7 @@ namespace Algorithm
             rayPosition[i] -= origin[i] - 0.5 * spacing[i];
         }
 
-        const auto direction = (mFocalPoint - point).Normalized();
+        const auto direction = mPerspectiveProjection ? (mFocalPoint - point).Normalized() : GetOrthographicRayDirection();
 
         double integral = 0.0;
 
@@ -158,7 +179,7 @@ namespace Algorithm
 
                     //evaluate input at right position and copy to the output
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
-                    *outPixel = (short) Evaluate(inputPoint);
+                    *outPixel = (short) GetIntegral(inputPoint);
                 }
             }
         }
@@ -237,7 +258,9 @@ namespace Algorithm
     void VolumeDRR::Update()
     {
         ComputeCenteredEuler3DTransform();
-        ComputeFocalPoint();
+
+        if(mPerspectiveProjection)
+            ComputeFocalPoint();
 
         mOutputOrigin[0] = mImageCenter[0] - mOutputSpacing[0] * (mOutputDimension[0] - 1.0) * 0.5;
         mOutputOrigin[1] = mImageCenter[1] - mOutputSpacing[1] * (mOutputDimension[1] - 1.0) * 0.5;

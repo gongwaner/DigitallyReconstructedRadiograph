@@ -265,6 +265,15 @@ namespace TransformUtil
     {
         return GetTransformedPoint(point.GetData(), transform);
     }
+
+    vtkVector3d GetTransformedVector(const vtkVector3d& vec, vtkMatrix4x4* transformMat)
+    {
+        double in[4]{vec[0], vec[1], vec[2], 0};
+        double out[4];
+        transformMat->MultiplyPoint(in, out);
+
+        return {out[0], out[1], out[2]};
+    }
 }
 
 namespace MeshUtil
