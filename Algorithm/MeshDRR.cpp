@@ -5,6 +5,7 @@
 
 #include <vtkPolyData.h>
 #include <vtkImageData.h>
+#include <vtkMatrix4x4.h>
 #include <vtkVectorOperators.h>
 #include <vtkImageIterator.h>
 #include <vtkImageCast.h>

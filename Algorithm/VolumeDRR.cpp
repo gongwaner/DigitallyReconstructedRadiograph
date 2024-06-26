@@ -152,7 +152,7 @@ namespace Algorithm
                     outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
 
                     //corresponding input pixel position
-                    auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
+                    const auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
                     double inputIndex[3];
                     mImageData->TransformPhysicalPointToContinuousIndex(inputPoint.GetData(), inputIndex);
 

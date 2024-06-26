@@ -1,12 +1,12 @@
 #pragma  once
 
 #include <vtkSmartPointer.h>
-#include <vtkMatrix4x4.h>
 #include <vtkVector.h>
 
 
 class vtkImageData;
 class vtkPolyData;
+class vtkMatrix4x4;
 
 namespace Algorithm
 {
