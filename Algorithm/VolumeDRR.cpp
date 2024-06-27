@@ -225,7 +225,7 @@ namespace Algorithm
                     outputImage->TransformIndexToPhysicalPoint(x, y, z, outputPoint);
 
                     //corresponding input pixel position
-                    const auto inputPoint = TransformUtil::GetTransformedPoint(vtkVector3d(outputPoint), mTransform);
+                    const auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
                     inputPointsVec.emplace_back(inputPoint);
 
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
@@ -235,11 +235,10 @@ namespace Algorithm
         }
 
         std::vector<short> resultPixelValueVec(vectorSize);
-        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
-                       [this](const vtkVector3d& point)
-                       {
-                           return (short) Evaluate(point);
-                       });
+        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(), [this](const vtkVector3d& point)
+        {
+            return (short) GetIntegral(point);
+        });
 
         for(int i = 0; i < resultPixelValueVec.size(); ++i)
         {
