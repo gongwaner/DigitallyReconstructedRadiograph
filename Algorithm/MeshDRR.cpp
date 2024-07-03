@@ -199,7 +199,7 @@ namespace Algorithm
         auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
 
         std::vector<short> resultPixelValueVec(vectorSize);
-        std::transform(inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
+        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
                        [this, &obbTree, &meshBounds](const vtkVector3d& point)
                        {
                            return (short) RayCastUtil::GetIntegral(meshBounds, obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
