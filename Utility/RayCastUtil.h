@@ -26,6 +26,6 @@ namespace RayCastUtil
     };
 
     vtkSmartPointer<vtkOBBTree> GetOBBTree(vtkPolyData* polyData);
-    double GetIntegral(const double meshBounds[6], vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient);
+    double GetIntegral(const double meshBounds[6], vtkOBBTree* obbTree, const Ray& ray, double attenuationCoefficient);
     std::vector<double> GetIntegral(const MeshDRRInfo& info);
 }

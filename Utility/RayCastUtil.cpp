@@ -24,7 +24,7 @@ namespace RayCastUtil
         const auto dir = ray.EndPos - ray.StartPos;
         const auto invDir = vtkVector3d(1.0 / dir[0], 1.0 / dir[1], 1.0 / dir[2]);
 
-        double t1 = (bounds[0] - ray.StartPos[0]) * invDir[0];//xin
+        double t1 = (bounds[0] - ray.StartPos[0]) * invDir[0];//xmin
         double t2 = (bounds[1] - ray.StartPos[0]) * invDir[0];//xmax
         double t3 = (bounds[2] - ray.StartPos[1]) * invDir[1];//ymin
         double t4 = (bounds[3] - ray.StartPos[1]) * invDir[1];//ymax
@@ -34,8 +34,7 @@ namespace RayCastUtil
         double tMin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
         double tMax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
 
-        //ray (line) is intersecting AABB, but the whole AABB is behind us
-        if(tMax < 0)
+        if(tMax < 0)//ray is intersecting AABB, but the whole AABB is behind us
             return false;
 
         if(tMin > tMax)//ray doesn't intersect AABB

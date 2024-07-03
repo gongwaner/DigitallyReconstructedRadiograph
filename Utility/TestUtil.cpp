@@ -17,9 +17,11 @@
 
 namespace TestUtil
 {
-    // Helper class to format slice status message.
     namespace StatusMessage
     {
+        /**
+         * format slice status message.
+         */
         std::string Format(int slice, int maxSlice)
         {
             std::stringstream tmp;
@@ -49,7 +51,7 @@ namespace TestUtil
             mMinSlice = imageViewer->GetSliceMin();
             mMaxSlice = imageViewer->GetSliceMax();
             mCurrentSlice = mMinSlice;
-            cout << "Slicer: Min = " << mMinSlice << ", Max = " << mMaxSlice << std::endl;
+            std::cout << "Slicer: Min = " << mMinSlice << ", Max = " << mMaxSlice << std::endl;
         }
 
         void SetStatusMapper(vtkTextMapper* statusMapper)
@@ -77,7 +79,7 @@ namespace TestUtil
             if(mCurrentSlice > mMinSlice)
             {
                 mCurrentSlice -= 1;
-                cout << "MoveSliceBackward::Slice = " << mCurrentSlice << std::endl;
+                std::cout << "MoveSliceBackward::Slice = " << mCurrentSlice << std::endl;
                 mImageViewer->SetSlice(mCurrentSlice);
 
                 const auto msg = StatusMessage::Format(mCurrentSlice, mMaxSlice);
@@ -104,9 +106,9 @@ namespace TestUtil
         void OnMouseWheelForward() override
         {
             MoveSliceForward();
-            // don't forward events, otherwise the image will be zoomed
-            // in case another interactorstyle is used (e.g. trackballstyle, ...)
-            // vtkInteractorStyleImage::OnMouseWheelForward();
+            //don't forward events, otherwise the image will be zoomed
+            //in case another interactorstyle is used (e.g. trackballstyle, ...)
+            //vtkInteractorStyleImage::OnMouseWheelForward();
         }
 
         void OnMouseWheelBackward() override
@@ -115,9 +117,9 @@ namespace TestUtil
             {
                 MoveSliceBackward();
             }
-            // don't forward events, otherwise the image will be zoomed
-            // in case another interactorstyle is used (e.g. trackballstyle, ...)
-            // vtkInteractorStyleImage::OnMouseWheelBackward();
+            //don't forward events, otherwise the image will be zoomed
+            //in case another interactorstyle is used (e.g. trackballstyle, ...)
+            //vtkInteractorStyleImage::OnMouseWheelBackward();
         }
     };
 
@@ -128,7 +130,7 @@ namespace TestUtil
         auto imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
         imageViewer->SetInputData(imageData);
 
-        // Slice status message.
+        //slice status message.
         auto sliceTextProp = vtkSmartPointer<vtkTextProperty>::New();
         sliceTextProp->SetFontFamilyToCourier();
         sliceTextProp->SetFontSize(20);
@@ -144,7 +146,7 @@ namespace TestUtil
         sliceTextActor->SetMapper(sliceTextMapper);
         sliceTextActor->SetPosition(15, 10);
 
-        // Usage hint message.
+        //usage hint message.
         auto usageTextProp = vtkSmartPointer<vtkTextProperty>::New();
         usageTextProp->SetFontFamilyToCourier();
         usageTextProp->SetFontSize(14);
@@ -152,38 +154,36 @@ namespace TestUtil
         usageTextProp->SetJustificationToLeft();
 
         auto usageTextMapper = vtkSmartPointer<vtkTextMapper>::New();
-        usageTextMapper->SetInput(
-                "- Slice with mouse wheel\n  or Up/Down-Key\n- Zoom with pressed right\n "
-                " mouse button while dragging");
+        usageTextMapper->SetInput("- Slice with mouse wheel\n  or Up/Down-Key\n- Zoom with pressed right\n "
+                                  " mouse button while dragging");
         usageTextMapper->SetTextProperty(usageTextProp);
 
         auto usageTextActor = vtkSmartPointer<vtkActor2D>::New();
         usageTextActor->SetMapper(usageTextMapper);
-        usageTextActor->GetPositionCoordinate()
-                ->SetCoordinateSystemToNormalizedDisplay();
+        usageTextActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedDisplay();
         usageTextActor->GetPositionCoordinate()->SetValue(0.05, 0.95);
 
-        // Create an interactor with our own style (inherit from
-        // vtkInteractorStyleImage) in order to catch mousewheel and key events.
+        //create an interactor with our own style (inherit from
+        //vtkInteractorStyleImage) in order to catch mousewheel and key events.
         auto renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
         auto myInteractorStyle = vtkSmartPointer<ImageInteractorStyle>::New();
 
-        // Make imageviewer2 and sliceTextMapper visible to our interactorstyle
-        // to enable slice status message updates when scrolling through the slices.
+        //make imageviewer2 and sliceTextMapper visible to our interactorstyle
+        //to enable slice status message updates when scrolling through the slices.
         myInteractorStyle->SetImageViewer(imageViewer);
         myInteractorStyle->SetStatusMapper(sliceTextMapper);
 
         imageViewer->SetupInteractor(renderWindowInteractor);
-        // Make the interactor use our own interactorstyle
-        // cause SetupInteractor() is defining it's own default interatorstyle
-        // this must be called after SetupInteractor().
+        //make the interactor use our own interactorstyle
+        //cause SetupInteractor() is defining it's own default interatorstyle
+        //this must be called after SetupInteractor().
         renderWindowInteractor->SetInteractorStyle(myInteractorStyle);
-        // Sdd slice status message and usage hint message to the renderer.
+
         imageViewer->GetRenderer()->AddActor2D(sliceTextActor);
         imageViewer->GetRenderer()->AddActor2D(usageTextActor);
 
-        // Initialize rendering and interaction.
+        //initialize rendering and interaction
         auto colors = vtkSmartPointer<vtkNamedColors>::New();
 
         imageViewer->Render();

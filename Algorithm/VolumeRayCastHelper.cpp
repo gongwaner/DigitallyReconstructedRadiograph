@@ -104,15 +104,15 @@ namespace Algorithm
         const int numOfPlanes = 6;
         mBoundingPlane.resize(numOfPlanes);
 
-        // find the equations of the planes
+        //find the equations of the planes
         for(int j = 0; j < numOfPlanes; ++j)
         {
-            // lines from one corner to another in x,y,z direction
+            //lines from one corner to another in x,y,z direction
             const auto planePntsIndices = GetPlanePntsIndices(j);
             const auto line1 = mBoundingCorner[planePntsIndices[0]] - mBoundingCorner[planePntsIndices[1]];
             const auto line2 = mBoundingCorner[planePntsIndices[0]] - mBoundingCorner[planePntsIndices[2]];
 
-            // take cross product
+            //take cross product
             vtkVector3d cross;
             cross[0] = line1[1] * line2[2] - line2[1] * line1[2];
             cross[1] = line2[0] * line1[2] - line1[0] * line2[2];
@@ -123,11 +123,11 @@ namespace Algorithm
                 throw std::runtime_error("ERROR! VolumeRayCastHelper::CalcPlanesAndCorners() Divide by zero plane!");
             }
 
-            // find constant
+            //find constant
             const auto D = -(cross[0] * mBoundingCorner[planePntsIndices[0]][0] + cross[1] * mBoundingCorner[planePntsIndices[0]][1] +
                              cross[2] * mBoundingCorner[planePntsIndices[0]][2]);
 
-            // initialise plane value and normalise
+            //initialise plane value and normalise
             const auto ratio = 1.0 / std::sqrt(cross[0] * cross[0] + cross[1] * cross[1] + cross[2] * cross[2]);
             for(int i = 0; i < 3; ++i)
                 mBoundingPlane[j][i] = cross[i] * ratio;
@@ -139,7 +139,7 @@ namespace Algorithm
     bool VolumeRayCastHelper::CalcRayIntercepts(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection,
                                                 vtkVector3d& rayStartCoord, vtkVector3d& rayEndCoord) const
     {
-        // Calculate ray-plane interception points
+        //calculate ray-plane interception points
         const int numOfPlanes = 6;
         const int cornerIndicesCnt = 4;
 
@@ -167,7 +167,7 @@ namespace Algorithm
                     interceptPnt[i] = rayPosition[i] + d * rayDirection[i];
 
                 const auto cornerIndices = GetCornerIndices(sideID);
-                // Calculate vectors from corner of ct volume to intercept.
+                //calculate vectors from corner of ct volume to intercept.
                 for(int i = 0; i < cornerIndicesCnt; ++i)
                 {
                     for(int index = 0; index < 3; ++index)
@@ -184,18 +184,18 @@ namespace Algorithm
                 const auto a = cornerVect[i];
                 const auto b = cornerVect[(i + 1) % cornerIndicesCnt];
 
-                // the int and divide by 100 are to avoid rounding errors.
-                // if these are not included then you get values fluctuating around 0
-                // and so in the subsequent check, all the values are not above or below 0.
-                // If you "INT" by too much here though you can get problems in the corners of your volume
-                // when rays are allowed to go through more than one plane.
+                //the int and divide by 100 are to avoid rounding errors.
+                //if these are not included then you get values fluctuating around 0
+                //and so in the subsequent check, all the values are not above or below 0.
+                //If you "INT" by too much here though you can get problems in the corners of your volume
+                //when rays are allowed to go through more than one plane.
                 cross[i][0] = static_cast<int>((a[1] * b[2] - a[2] * b[1]) / 100);
                 cross[i][1] = static_cast<int>((a[2] * b[0] - a[0] * b[2]) / 100);
                 cross[i][2] = static_cast<int>((a[0] * b[1] - a[1] * b[0]) / 100);
             }
 
-            // See if a sign change occurred between all these cross products
-            // if not, then the ray went through this plane
+            //see if a sign change occurred between all these cross products
+            //if not, then the ray went through this plane
             int crossFlag = 0;
             for(int i = 0; i < 3; ++i)
             {
@@ -223,11 +223,11 @@ namespace Algorithm
             return true;
         }
 
-        // If 'nSidesCrossed' is larger than 2, this means that the ray goes through
-        // a corner of the volume and due to rounding errors, the ray is
-        // deemed to go through more than two planes.  To obtain the correct
-        // start and end positions we choose the two intercept values which
-        // are furthest from each other.
+        //if 'nSidesCrossed' is larger than 2, this means that the ray goes through
+        //a corner of the volume and due to rounding errors, the ray is
+        //deemed to go through more than two planes.  To obtain the correct
+        //start and end positions we choose the two intercept values which
+        //are furthest from each other.
         if(nSidesCrossed >= 3)
         {
             if(nSidesCrossed >= 5)
@@ -350,7 +350,7 @@ namespace Algorithm
      */
     void VolumeRayCastHelper::CalcDirectionVector()
     {
-        // Calculate the number of voxels in each direction
+        //calculate the number of voxels in each direction
         vtkVector3d diff;
         vtkVector3d absDiff;
         for(int i = 0; i < 3; ++i)
@@ -359,7 +359,7 @@ namespace Algorithm
             absDiff[i] = abs(diff[i]);
         }
 
-        // The direction iterated in is that with the greatest number of voxels
+        //the direction iterated in is that with the greatest number of voxels
         const auto max = std::max(absDiff[0], std::max(absDiff[1], absDiff[2]));
         mTotalRayVoxelPlanes = (int) max;
         if(max == absDiff[0])
@@ -380,10 +380,10 @@ namespace Algorithm
         mVoxelIncrement[nextIndex] = reverse ? (diff[nextIndex] / delta) : -(diff[nextIndex] / delta);
         mVoxelIncrement[prevIndex] = reverse ? (diff[prevIndex] / delta) : -(diff[prevIndex] / delta);
 
-        // alter the start position in order to place the center of the voxels in the correct positions,
-        // rather than placing them at the corner of voxels which is what happens if this is not
-        // carried out.  The reason why x has no -0.5 is because this is the direction we are going to
-        // iterate in, and therefore we wish to go from center to center rather than finding the surrounding voxels.
+        //alter the start position in order to place the center of the voxels in the correct positions,
+        //rather than placing them at the corner of voxels which is what happens if this is not
+        //carried out.  The reason why x has no -0.5 is because this is the direction we are going to
+        //iterate in, and therefore we wish to go from center to center rather than finding the surrounding voxels.
         const auto startPos = mRayVoxelStartPosition[index];
         const auto incrementValue = mVoxelIncrement[index];
         const auto nextIncrementValue = mVoxelIncrement[nextIndex];
@@ -448,7 +448,7 @@ namespace Algorithm
 
     bool VolumeRayCastHelper::SetRay(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection)
     {
-        // Compute the ray path for this coordinate in mm
+        //compute the ray path for this coordinate in mm
         vtkVector3d rayStartCoordInMM, rayEndCoordInMM;
         mIsValidRay = CalcRayIntercepts(rayPosition, rayDirection, rayStartCoordInMM, rayEndCoordInMM);
 
@@ -557,9 +557,9 @@ namespace Algorithm
             IncrementVoxelPointers();
         }
 
-        //The ray passes through the volume one plane of voxels at a time
-        // however, if its moving diagonally the ray points will be further apart
-        // so account for this by scaling by the distance moved.
+        //the ray passes through the volume one plane of voxels at a time
+        //however, if its moving diagonally the ray points will be further apart
+        //so account for this by scaling by the distance moved.
         integral = sum * GetRayPointSpacing() * mAttenuationCoefficient;
 
         return true;
