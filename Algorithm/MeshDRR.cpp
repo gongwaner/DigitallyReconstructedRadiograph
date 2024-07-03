@@ -201,7 +201,7 @@ namespace Algorithm
         std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
                        [this, &obbTree](const vtkVector3d& point)
                        {
-                           return (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+                           return (short) RayCastUtil::GetIntegral(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
                        });
 
         for(int i = 0; i < vectorSize; ++i)

@@ -37,6 +37,27 @@ namespace RayCastUtil
         return intersectedPntsVec;
     }
 
+    double GetIntegral(vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient)
+    {
+        double attenuationSum = 0.0;
+        auto intersectionResult = GetRayMeshIntersectionPoints(obbTree, ray);
+        if(intersectionResult)
+        {
+            const auto& intersectionPnts = *intersectionResult;
+            if(intersectionPnts.size() % 2 == 0)
+            {
+                for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                {
+                    // Calculate the distance to the next intersection point
+                    const auto distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
+                    attenuationSum += distance * attenuationCoefficient;
+                }
+            }
+        }
+
+        return attenuationSum;
+    }
+
     std::vector<double> GetIntegral(const MeshDRRInfo& info)
     {
         if(info.InputPoints.empty())

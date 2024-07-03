@@ -3,6 +3,7 @@
 #include <vector>
 #include <vtkVector.h>
 #include <vtkSmartPointer.h>
+#include <optional>
 
 
 class vtkOBBTree;
@@ -26,5 +27,6 @@ namespace RayCastUtil
 
     vtkSmartPointer<vtkOBBTree> GetOBBTree(vtkPolyData* polyData);
     std::optional<std::vector<vtkVector3d>> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray);
+    double GetIntegral(vtkOBBTree* obbTree, const Ray& ray, double attenuationCoefficient);
     std::vector<double> GetIntegral(const MeshDRRInfo& info);
 }
