@@ -6,6 +6,7 @@
 #include <vtkOBBTree.h>
 #include <vtkVectorOperators.h>
 
+
 namespace RayCastUtil
 {
     vtkSmartPointer<vtkOBBTree> GetOBBTree(vtkPolyData* polyData)
@@ -21,7 +22,7 @@ namespace RayCastUtil
     std::vector<vtkVector3d> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray)
     {
         auto intersectPoints = vtkSmartPointer<vtkPoints>::New();
-        const int result = obbTree->IntersectWithLine(ray.startPos.GetData(), ray.endPos.GetData(), intersectPoints, nullptr);
+        const int result = obbTree->IntersectWithLine(ray.StartPos.GetData(), ray.EndPos.GetData(), intersectPoints, nullptr);
 
         if(result == 0)
         {
@@ -39,23 +40,29 @@ namespace RayCastUtil
         return intersectedPntsVec;
     }
 
-    double IntegrateEnergy(vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient)
+    std::vector<double> GetIntegral(const MeshDRRInfo& info)
     {
-        double attenuationSum = 0.0;
+        if(info.InputPoints.empty())
+            throw std::runtime_error("RayCastUtil::GetIntegral(). Input points vector is empty!");
 
-        auto intersectionPnts = GetRayMeshIntersectionPoints(obbTree, ray);
-        if(!intersectionPnts.empty() && intersectionPnts.size() % 2 == 0)
+        std::vector<double> attenuationSumVec(info.InputPoints.size(), 0.0);
+
+        for(int pID = 0; pID < info.InputPoints.size(); ++pID)
         {
-            for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+            auto intersectionPnts = GetRayMeshIntersectionPoints(info.ObbTree, {info.FocalPoint, info.InputPoints[pID]});
+            if(!intersectionPnts.empty() && intersectionPnts.size() % 2 == 0)
             {
-                // Calculate the distance to the next intersection point
-                double distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
+                for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                {
+                    //calculate the distance to the next intersection point
+                    double distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
 
-                double attenuation = distance * attenuationCoefficient;
-                attenuationSum += attenuation;
+                    double attenuation = distance * info.AttenuationCoefficient;
+                    attenuationSumVec[pID] += attenuation;
+                }
             }
         }
 
-        return attenuationSum;
+        return attenuationSumVec;
     }
 };

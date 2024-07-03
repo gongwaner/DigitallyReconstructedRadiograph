@@ -99,8 +99,8 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
-                   mOutputSpacing[2]);
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
+                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -108,7 +108,12 @@ namespace Algorithm
         outputImage->SetSpacing(mOutputSpacing.GetData());
         outputImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
 
-        auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
+        const auto vectorSize = mOutputDimension[0] * mOutputDimension[1] * mOutputDimension[2];
+        std::vector<vtkVector3d> inputPointsVec;
+        inputPointsVec.reserve(vectorSize);
+
+        std::vector<short*> outPixelsVec;
+        outPixelsVec.reserve(vectorSize);
 
         for(int z = 0; z < mOutputDimension[2]; z++)
         {
@@ -123,11 +128,27 @@ namespace Algorithm
                     //corresponding input pixel position
                     auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
 
-                    //evaluate input at right position and copy to the output
+                    inputPointsVec.push_back(inputPoint);
+
+                    //cache output pixel
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
-                    *outPixel = (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, inputPoint}, mAttenuationCoefficient);
+                    outPixelsVec.push_back(outPixel);
                 }
             }
+        }
+
+        RayCastUtil::MeshDRRInfo info;
+        info.ObbTree = RayCastUtil::GetOBBTree(mPolyData);
+        info.InputPoints = inputPointsVec;
+        info.FocalPoint = mFocalPoint;
+        info.AttenuationCoefficient = mAttenuationCoefficient;
+
+        const auto resultPixelValueVec = RayCastUtil::GetIntegral(info);
+
+        for(int i = 0; i < vectorSize; ++i)
+        {
+            auto ptr = outPixelsVec[i];
+            *ptr = (short) resultPixelValueVec[i];
         }
 
         return outputImage;
@@ -137,8 +158,8 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataPar() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2], mOutputSpacing[0], mOutputSpacing[1],
-                   mOutputSpacing[2]);
+            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
+                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -167,7 +188,7 @@ namespace Algorithm
                     auto inputPoint = TransformUtil::GetTransformedPoint(outputPoint, mTransform);
                     inputPointsVec.push_back(inputPoint);
 
-                    //evaluate input at right position and copy to the output
+                    //cache output pixel
                     auto outPixel = static_cast<short*>(outputImage->GetScalarPointer(x, y, z));
                     outPixelsVec.push_back(outPixel);
                 }
@@ -177,12 +198,13 @@ namespace Algorithm
         auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
 
         std::vector<short> resultPixelValueVec(vectorSize);
-        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(), [this, &obbTree](const vtkVector3d& point)
-        {
-            return (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
-        });
+        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
+                       [this, &obbTree](const vtkVector3d& point)
+                       {
+                           return (short) RayCastUtil::IntegrateEnergy(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+                       });
 
-        for(int i = 0; i < resultPixelValueVec.size(); ++i)
+        for(int i = 0; i < vectorSize; ++i)
         {
             auto ptr = outPixelsVec[i];
             *ptr = resultPixelValueVec[i];
@@ -202,18 +224,10 @@ namespace Algorithm
         mOutputOrigin[2] = mPolyDataCenter[2] + mMeshToDetectorDistance;
 
 #ifdef _WIN32
-        auto outputImage = GenerateOutputImageDataPar();
+        mOutputImageData = GenerateOutputImageDataPar();
 #else
-        auto outputImage = GenerateOutputImageDataSeq();
+        mOutputImageData = GenerateOutputImageDataSeq();
 #endif
-
-        //convert to unsigned short
-        auto castFilter = vtkSmartPointer<vtkImageCast>::New();
-        castFilter->SetOutputScalarTypeToUnsignedShort();
-        castFilter->SetInputData(outputImage);
-        castFilter->Update();
-
-        mOutputImageData = castFilter->GetOutput();
     }
 
     vtkSmartPointer<vtkImageData> MeshDRR::GetOutput() const

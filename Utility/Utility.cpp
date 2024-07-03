@@ -120,7 +120,7 @@ namespace IOUtil
             std::filesystem::create_directories(parentDir);
         }
 
-        //png only supports unsigned char/short
+        //png only supports unsigned char/short so cast it before export
         auto castFilter = vtkSmartPointer<vtkImageCast>::New();
         castFilter->SetInputData(imageData);
         isUnsignedShort ? castFilter->SetOutputScalarTypeToUnsignedShort() : castFilter->SetOutputScalarTypeToUnsignedChar();
