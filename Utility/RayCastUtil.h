@@ -19,14 +19,13 @@ namespace RayCastUtil
 
     struct MeshDRRInfo
     {
-        vtkSmartPointer<vtkOBBTree> ObbTree;
+        vtkSmartPointer<vtkPolyData> Mesh;
         std::vector<vtkVector3d> InputPoints;
         vtkVector3d FocalPoint;
         double AttenuationCoefficient = 1.0;
     };
 
     vtkSmartPointer<vtkOBBTree> GetOBBTree(vtkPolyData* polyData);
-    std::optional<std::vector<vtkVector3d>> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray);
-    double GetIntegral(vtkOBBTree* obbTree, const Ray& ray, double attenuationCoefficient);
+    double GetIntegral(const double meshBounds[6], vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient);
     std::vector<double> GetIntegral(const MeshDRRInfo& info);
 }

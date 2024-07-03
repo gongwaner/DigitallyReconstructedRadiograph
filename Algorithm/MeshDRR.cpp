@@ -138,7 +138,7 @@ namespace Algorithm
         }
 
         RayCastUtil::MeshDRRInfo info;
-        info.ObbTree = RayCastUtil::GetOBBTree(mPolyData);
+        info.Mesh = mPolyData;
         info.InputPoints = inputPointsVec;
         info.FocalPoint = mFocalPoint;
         info.AttenuationCoefficient = mAttenuationCoefficient;
@@ -195,13 +195,14 @@ namespace Algorithm
             }
         }
 
+        auto meshBounds = mPolyData->GetBounds();
         auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
 
         std::vector<short> resultPixelValueVec(vectorSize);
-        std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
-                       [this, &obbTree](const vtkVector3d& point)
+        std::transform(inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
+                       [this, &obbTree, &meshBounds](const vtkVector3d& point)
                        {
-                           return (short) RayCastUtil::GetIntegral(obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+                           return (short) RayCastUtil::GetIntegral(meshBounds, obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
                        });
 
         for(int i = 0; i < vectorSize; ++i)
