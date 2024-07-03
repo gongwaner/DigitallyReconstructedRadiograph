@@ -1,10 +1,10 @@
-#include <vtkPoints.h>
 #include "RayCastUtil.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 #include <vtkOBBTree.h>
 #include <vtkVectorOperators.h>
+#include <vtkPoints.h>
 
 
 namespace RayCastUtil
@@ -19,16 +19,13 @@ namespace RayCastUtil
         return obbTree;
     }
 
-    std::vector<vtkVector3d> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray)
+    std::optional<std::vector<vtkVector3d>> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray)
     {
         auto intersectPoints = vtkSmartPointer<vtkPoints>::New();
         const int result = obbTree->IntersectWithLine(ray.StartPos.GetData(), ray.EndPos.GetData(), intersectPoints, nullptr);
 
-        if(result == 0)
-        {
-            //no intersection
-            return {};
-        }
+        if(result == 0) //no intersection
+            return std::nullopt;
 
         const auto pntsCnt = intersectPoints->GetNumberOfPoints();
         std::vector<vtkVector3d> intersectedPntsVec(pntsCnt);
@@ -49,16 +46,18 @@ namespace RayCastUtil
 
         for(int pID = 0; pID < info.InputPoints.size(); ++pID)
         {
-            auto intersectionPnts = GetRayMeshIntersectionPoints(info.ObbTree, {info.FocalPoint, info.InputPoints[pID]});
-            if(!intersectionPnts.empty() && intersectionPnts.size() % 2 == 0)
+            const auto intersectionResult = GetRayMeshIntersectionPoints(info.ObbTree, {info.FocalPoint, info.InputPoints[pID]});
+            if(intersectionResult)
             {
-                for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                const auto& intersectionPnts = *intersectionResult;
+                if(intersectionPnts.size() % 2 == 0)
                 {
-                    //calculate the distance to the next intersection point
-                    double distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
-
-                    double attenuation = distance * info.AttenuationCoefficient;
-                    attenuationSumVec[pID] += attenuation;
+                    for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                    {
+                        //calculate the distance to the next intersection point
+                        const double distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
+                        attenuationSumVec[pID] += distance * info.AttenuationCoefficient;
+                    }
                 }
             }
         }

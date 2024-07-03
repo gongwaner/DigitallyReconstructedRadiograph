@@ -76,7 +76,8 @@ void TestMeshDRR(const std::filesystem::path& dataDir)
 
     Algorithm::MeshDRR drr;
     drr.SetInputPolyData(polyData);
-    drr.SetAttenuationCoefficient(1000);
+    drr.SetSourceToMeshDistance(150);
+    drr.SetAttenuationCoefficient(500);
     drr.SetOutputImageDimension(512, 512, 1);
     drr.Update();
 

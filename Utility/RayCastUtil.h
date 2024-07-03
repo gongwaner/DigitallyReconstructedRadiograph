@@ -25,6 +25,6 @@ namespace RayCastUtil
     };
 
     vtkSmartPointer<vtkOBBTree> GetOBBTree(vtkPolyData* polyData);
-    std::vector<vtkVector3d> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray);
+    std::optional<std::vector<vtkVector3d>> GetRayMeshIntersectionPoints(vtkOBBTree* obbTree, const Ray& ray);
     std::vector<double> GetIntegral(const MeshDRRInfo& info);
 }
