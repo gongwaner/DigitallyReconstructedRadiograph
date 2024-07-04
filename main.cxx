@@ -1,9 +1,6 @@
 #include "Algorithm/VolumeDRR.h"
 #include "Algorithm/MeshDRR.h"
 
-#include "Utility/Utility.h"
-#include "Utility/TestUtil.h"
-
 #include <vtkImageData.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
@@ -11,11 +8,16 @@
 
 #include <filesystem>
 
+#include "CommonUtility/IO/IOUtil.h"
+#include "CommonUtility/Mesh/MeshUtil.h"
+#include "CommonUtility/Visualization/VisualizationUtil.h"
+
+
 void TestVolumeDRR(const std::filesystem::path& dataDir)
 {
     auto dicomFolder = dataDir;
     dicomFolder = dicomFolder.append("pelvis");
-    auto imageData = IOUtil::ReadImageDataFromFolder(dicomFolder.string().c_str());
+    auto imageData = IOUtil::ReadImageData(dicomFolder.string().c_str());
 
     const auto imageDimension = imageData->GetDimensions();
     const auto imageSpacing = imageData->GetSpacing();
@@ -26,7 +28,7 @@ void TestVolumeDRR(const std::filesystem::path& dataDir)
 
     const bool visualizeCT = false;
     if(visualizeCT)
-        TestUtil::VisualizeImageData(imageData);
+        VisualizationUtil::VisualizeImageData(imageData);
 
     const int executionCnt = 1;
     long long totalExecutionTime = 0;

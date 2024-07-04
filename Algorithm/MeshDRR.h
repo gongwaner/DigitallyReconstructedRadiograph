@@ -7,9 +7,24 @@
 class vtkImageData;
 class vtkPolyData;
 class vtkMatrix4x4;
+class vtkOBBTree;
 
 namespace Algorithm
 {
+    struct Ray
+    {
+        vtkVector3d StartPos;
+        vtkVector3d EndPos;
+    };
+
+    struct MeshDRRInfo
+    {
+        vtkSmartPointer<vtkPolyData> Mesh;
+        std::vector<vtkVector3d> InputPoints;
+        vtkVector3d FocalPoint;
+        double AttenuationCoefficient = 1.0;
+    };
+
     class MeshDRR
     {
     public:

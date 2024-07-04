@@ -1,17 +1,17 @@
 #include "MeshDRR.h"
 
-#include "../Utility/Utility.h"
-#include "../Utility/RayCastUtil.h"
-
 #include <vtkPolyData.h>
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <vtkVectorOperators.h>
 #include <vtkImageIterator.h>
-#include <vtkImageCast.h>
 #include <vtkOBBTree.h>
 
 #include <execution>
+
+#include "Transformation/TransformUtil.h"
+#include "Mesh/MeshUtil.h"
+#include "CollisionDetection/CollisionDetectionUtil.h"
 
 
 namespace Algorithm
@@ -96,6 +96,79 @@ namespace Algorithm
         mFocalPoint = TransformUtil::GetTransformedPoint(mFocalPoint, mTransform);
     }
 
+    std::optional<std::vector<vtkVector3d>> GetRayMeshIntersectionPoints(const double meshBounds[6], vtkOBBTree* obbTree, const Ray& ray)
+    {
+        if(!CollisionDetectionUtil::RayIntersectsAABB(ray.StartPos, ray.EndPos, meshBounds))
+            return std::nullopt;
+
+        auto intersectPoints = vtkSmartPointer<vtkPoints>::New();
+        const int result = obbTree->IntersectWithLine(ray.StartPos.GetData(), ray.EndPos.GetData(), intersectPoints, nullptr);
+
+        if(result == 0) //no intersection
+            return std::nullopt;
+
+        const auto pntsCnt = intersectPoints->GetNumberOfPoints();
+        std::vector<vtkVector3d> intersectedPntsVec(pntsCnt);
+        for(int i = 0; i < pntsCnt; i++)
+        {
+            intersectedPntsVec.push_back(vtkVector3d(intersectPoints->GetPoint(i)));
+        }
+
+        return intersectedPntsVec;
+    }
+
+    double GetIntegral(const double meshBounds[6], vtkOBBTree* obbTree, const Ray& ray, const double attenuationCoefficient)
+    {
+        double attenuationSum = 0.0;
+        auto intersectionResult = GetRayMeshIntersectionPoints(meshBounds, obbTree, ray);
+        if(intersectionResult)
+        {
+            const auto& intersectionPnts = *intersectionResult;
+            if(intersectionPnts.size() % 2 == 0)
+            {
+                for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                {
+                    // Calculate the distance to the next intersection point
+                    const auto distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
+                    attenuationSum += distance * attenuationCoefficient;
+                }
+            }
+        }
+
+        return attenuationSum;
+    }
+
+    std::vector<double> GetIntegral(const MeshDRRInfo& info)
+    {
+        if(info.InputPoints.empty())
+            throw std::runtime_error("RayCastUtil::GetIntegral(). Input points vector is empty!");
+
+        auto meshBounds = info.Mesh->GetBounds();
+        auto obbTree = MeshUtil::GetOBBTree(info.Mesh);
+
+        std::vector<double> attenuationSumVec(info.InputPoints.size(), 0.0);
+
+        for(int pID = 0; pID < info.InputPoints.size(); ++pID)
+        {
+            const auto intersectionResult = GetRayMeshIntersectionPoints(meshBounds, obbTree, {info.FocalPoint, info.InputPoints[pID]});
+            if(intersectionResult)
+            {
+                const auto& intersectionPnts = *intersectionResult;
+                if(intersectionPnts.size() % 2 == 0)
+                {
+                    for(auto i = 0; i < intersectionPnts.size() - 1; ++i)
+                    {
+                        //calculate the distance to the next intersection point
+                        const double distance = (intersectionPnts[i + 1] - intersectionPnts[i]).Norm();
+                        attenuationSumVec[pID] += distance * info.AttenuationCoefficient;
+                    }
+                }
+            }
+        }
+
+        return attenuationSumVec;
+    }
+
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
@@ -137,13 +210,13 @@ namespace Algorithm
             }
         }
 
-        RayCastUtil::MeshDRRInfo info;
+        MeshDRRInfo info;
         info.Mesh = mPolyData;
         info.InputPoints = inputPointsVec;
         info.FocalPoint = mFocalPoint;
         info.AttenuationCoefficient = mAttenuationCoefficient;
 
-        const auto resultPixelValueVec = RayCastUtil::GetIntegral(info);
+        const auto resultPixelValueVec = GetIntegral(info);
 
         for(int i = 0; i < vectorSize; ++i)
         {
@@ -196,13 +269,13 @@ namespace Algorithm
         }
 
         auto meshBounds = mPolyData->GetBounds();
-        auto obbTree = RayCastUtil::GetOBBTree(mPolyData);
+        auto obbTree = MeshUtil::GetOBBTree(mPolyData);
 
         std::vector<short> resultPixelValueVec(vectorSize);
         std::transform(std::execution::par, inputPointsVec.begin(), inputPointsVec.end(), resultPixelValueVec.begin(),
                        [this, &obbTree, &meshBounds](const vtkVector3d& point)
                        {
-                           return (short) RayCastUtil::GetIntegral(meshBounds, obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
+                           return (short) GetIntegral(meshBounds, obbTree, {mFocalPoint, point}, mAttenuationCoefficient);
                        });
 
         for(int i = 0; i < vectorSize; ++i)

@@ -1,13 +1,13 @@
 #include "VolumeDRR.h"
 
-#include "../Utility/Utility.h"
-#include "VolumeRayCastHelper.h"
-
 #include <vtkImageData.h>
 #include <vtkImageIterator.h>
 #include <vtkVectorOperators.h>
 
 #include <execution>
+
+#include "VolumeRayCastHelper.h"
+#include "Transformation/TransformUtil.h"
 
 
 namespace Algorithm

@@ -21,19 +21,23 @@ find_package(VTK COMPONENTS
 )
 
 if (NOT VTK_FOUND)
-    message(FATAL_ERROR "ReadDICOMSeries: Unable to find the VTK build folder.")
+    message(FATAL_ERROR "DRR: Unable to find the VTK build folder.")
 endif ()
 
 # Prevent a "command line is too long" failure in Windows.
 set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response files.")
 
+include_directories(${PROJECT_SOURCE_DIR}/CommonUtility)
+
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         Algorithm/VolumeDRR.cpp
         Algorithm/VolumeRayCastHelper.cpp
-        Utility/TestUtil.cpp
-        Utility/Utility.cpp
         Algorithm/MeshDRR.cpp
-        Utility/RayCastUtil.cpp
+        CommonUtility/CollisionDetection/CollisionDetectionUtil.cpp
+        CommonUtility/IO/IOUtil.cpp
+        CommonUtility/Mesh/MeshUtil.cpp
+        CommonUtility/Transformation/TransformUtil.cpp
+        CommonUtility/Visualization/VisualizationUtil.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${VTK_LIBRARIES})
