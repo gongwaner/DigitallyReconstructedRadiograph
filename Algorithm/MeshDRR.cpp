@@ -9,9 +9,9 @@
 
 #include <execution>
 
-#include "Transformation/TransformUtil.h"
-#include "Mesh/MeshUtil.h"
-#include "CollisionDetection/CollisionDetectionUtil.h"
+#include "../CommonUtility/Transformation/TransformUtil.h"
+#include "../CommonUtility/Mesh/MeshUtil.h"
+#include "../CommonUtility/CollisionDetection/CollisionDetectionUtil.h"
 
 
 namespace Algorithm
@@ -111,7 +111,7 @@ namespace Algorithm
         std::vector<vtkVector3d> intersectedPntsVec(pntsCnt);
         for(int i = 0; i < pntsCnt; i++)
         {
-            intersectedPntsVec.push_back(vtkVector3d(intersectPoints->GetPoint(i)));
+            intersectedPntsVec[i] = vtkVector3d(intersectPoints->GetPoint(i));
         }
 
         return intersectedPntsVec;
@@ -141,7 +141,7 @@ namespace Algorithm
     std::vector<double> GetIntegral(const MeshDRRInfo& info)
     {
         if(info.InputPoints.empty())
-            throw std::runtime_error("RayCastUtil::GetIntegral(). Input points vector is empty!");
+            throw std::runtime_error("Mesh DRR GetIntegral(). Input points vector is empty!");
 
         auto meshBounds = info.Mesh->GetBounds();
         auto obbTree = MeshUtil::GetOBBTree(info.Mesh);
