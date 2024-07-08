@@ -9,14 +9,14 @@
 #include <filesystem>
 
 #include "CommonUtility/IO/IOUtil.h"
+#include "CommonUtility/Test/TestUtil.h"
 #include "CommonUtility/Mesh/MeshUtil.h"
 #include "CommonUtility/Visualization/VisualizationUtil.h"
 
 
-void TestVolumeDRR(const std::filesystem::path& dataDir)
+void TestVolumeDRR()
 {
-    auto dicomFolder = dataDir;
-    dicomFolder = dicomFolder.append("pelvis");
+    const auto dicomFolder = TestUtil::GetDataDir() / "pelvis";
     auto imageData = IOUtil::ReadImageData(dicomFolder.string().c_str());
 
     const auto imageDimension = imageData->GetDimensions();
@@ -58,17 +58,14 @@ void TestVolumeDRR(const std::filesystem::path& dataDir)
     const auto avgExecutionTime = (double) totalExecutionTime / (double) executionCnt;
     printf("\n%i average execution time:%f ms\n", executionCnt, avgExecutionTime);
 
-    auto outDir = dataDir;
-    outDir = outDir.append("output");
-    const auto outFile = outDir.append("drr_volume.png");
+    const auto outFile = TestUtil::GetOutputDir().append("drr_volume.png");
     std::cout << "outFile: " << outFile << std::endl;
     IOUtil::WritePng(outFile.string().c_str(), outputImage);
 }
 
-void TestMeshDRR(const std::filesystem::path& dataDir)
+void TestMeshDRR()
 {
-    auto fileDir = dataDir;
-    fileDir = fileDir.append("mesh").append("bunny.stl");
+    const auto fileDir = TestUtil::GetDataDir().append("mesh").append("bunny.stl");
     auto polyData = IOUtil::ReadMesh(fileDir.string().c_str());
 
     auto dimension = MeshUtil::GetMeshDimension(polyData);
@@ -90,38 +87,15 @@ void TestMeshDRR(const std::filesystem::path& dataDir)
 
     std::cout << "mesh ddr takes " << duration.count() << " ms" << std::endl;
 
-    auto outDir = dataDir;
-    outDir = outDir.append("output");
-    const auto outFile = outDir.append("drr_mesh.png");
+    const auto outFile = TestUtil::GetOutputDir().append("drr_mesh.png");
     std::cout << "outFile: " << outFile << std::endl;
     IOUtil::WritePng(outFile.string().c_str(), outputImage);
 }
 
 int main(int argc, char* argv[])
 {
-    auto cwd = std::filesystem::current_path();
-    printf("current working dir: %s\n", cwd.string().c_str());
-
-#ifdef _WIN32
-    auto projectDir = cwd.parent_path();
-    printf("projectDir dir: %s\n", projectDir.string().c_str());
-#elif __APPLE__
-    auto projectDir = cwd.parent_path().parent_path().parent_path().parent_path();
-    printf("projectDir dir: %s\n", projectDir.string().c_str());
-#else
-    printf("Operating system not supported!\n");
-#endif
-
-    const auto dataDir = projectDir.append("Data");
-    printf("dataDir dir: %s\n", dataDir.string().c_str());
-    if(!std::filesystem::is_directory(dataDir))
-    {
-        printf("data directory does not exist!\n");
-        return 1;
-    }
-
-    TestVolumeDRR(dataDir);
-    TestMeshDRR(dataDir);
+    TestVolumeDRR();
+    TestMeshDRR();
 
     return EXIT_SUCCESS;
 }

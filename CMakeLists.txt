@@ -13,6 +13,7 @@ find_package(VTK COMPONENTS
         IOPLY
         InteractionImage
         InteractionStyle
+        InteractionWidgets
         RenderingContextOpenGL2
         RenderingCore
         RenderingFreeType
@@ -36,6 +37,8 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         CommonUtility/CollisionDetection/CollisionDetectionUtil.cpp
         CommonUtility/IO/IOUtil.cpp
         CommonUtility/Mesh/MeshUtil.cpp
+        CommonUtility/Mesh/GeometricObjectUtil.cpp
+        CommonUtility/Test/TestUtil.cpp
         CommonUtility/Transformation/TransformUtil.cpp
         CommonUtility/Visualization/VisualizationUtil.cpp
 )
