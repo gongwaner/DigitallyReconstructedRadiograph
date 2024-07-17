@@ -8,10 +8,10 @@
 
 #include <filesystem>
 
-#include "CommonUtility/IO/IOUtil.h"
-#include "CommonUtility/Test/TestUtil.h"
-#include "CommonUtility/Mesh/MeshUtil.h"
-#include "CommonUtility/Visualization/VisualizationUtil.h"
+#include <IO/IOUtil.h>
+#include <Test/TestUtil.h>
+#include <Mesh/MeshUtil.h>
+#include <Visualization/VisualizationUtil.h>
 
 
 void TestVolumeDRR()

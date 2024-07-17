@@ -6,7 +6,7 @@
 
 #include <execution>
 
-#include "../CommonUtility/Transformation/TransformUtil.h"
+#include <Transformation/TransformUtil.h>
 
 #include "VolumeRayCastHelper.h"
 
