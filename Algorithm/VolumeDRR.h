@@ -24,7 +24,6 @@ namespace Algorithm
         void SetOutputImageDimension(int dimX, int dimY, int dimZ);
         void SetOutputSpacing(const vtkVector3d& spacing);
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
-
         void SetProjectionToPerspective();
         void SetProjectionToOrthographic();
         void SetDebugModeOn();
@@ -33,6 +32,14 @@ namespace Algorithm
 
         vtkSmartPointer<vtkImageData> GetOutput() const;
 
+    private:
+        void ComputeCenteredEuler3DTransform();
+        void ComputeFocalPoint();
+
+        vtkVector3d GetOrthographicRayDirection() const;
+        double GetIntegral(const vtkVector3d& point) const;
+        vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
+        vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
 
     private:
         vtkImageData* mImageData = nullptr;
@@ -60,15 +67,5 @@ namespace Algorithm
 
         //debug flag
         bool mDebug = false;
-
-
-        void ComputeCenteredEuler3DTransform();
-        void ComputeFocalPoint();
-
-        vtkVector3d GetOrthographicRayDirection() const;
-        double GetIntegral(const vtkVector3d& point) const;
-
-        vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
-        vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };
 }

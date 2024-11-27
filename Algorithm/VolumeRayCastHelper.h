@@ -25,6 +25,19 @@ namespace Algorithm
         bool IntegrateAboveThreshold(double& integral, double threshold);
 
     private:
+        void DefineCorners();
+        void CalculateBoundingPlane();
+        bool CalcRayIntercepts(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection, vtkVector3d& rayStartCoord, vtkVector3d& rayEndCoord) const;
+        void CalcDirectionVector();
+        bool AdjustRayLength();
+        void InitializeVoxelPointers();
+        void Reset();
+        void IncrementVoxelPointers();
+
+        double GetCurrentIntensity() const;
+        double GetRayPointSpacing() const;
+
+    private:
         vtkImageData* mImage = nullptr;
         vtkVector3i mImageDimension{0, 0, 0};
         vtkVector3d mImageSpacing{0.0, 0.0, 0.0};
@@ -45,18 +58,5 @@ namespace Algorithm
         vtkVector3i mRayIntersectionVoxelIndex{0, 0, 0};
 
         double mAttenuationCoefficient = 1.0;
-
-
-        void DefineCorners();
-        void CalculateBoundingPlane();
-        bool CalcRayIntercepts(const vtkVector3d& rayPosition, const vtkVector3d& rayDirection, vtkVector3d& rayStartCoord, vtkVector3d& rayEndCoord) const;
-        void CalcDirectionVector();
-        bool AdjustRayLength();
-        void InitializeVoxelPointers();
-        void Reset();
-        void IncrementVoxelPointers();
-
-        double GetCurrentIntensity() const;
-        double GetRayPointSpacing() const;
     };
 }

@@ -19,7 +19,7 @@ namespace Algorithm
 
     struct MeshDRRInfo
     {
-        vtkSmartPointer<vtkPolyData> Mesh;
+        vtkPolyData* Mesh;
         std::vector<vtkVector3d> InputPoints;
         vtkVector3d FocalPoint;
         double AttenuationCoefficient = 1.0;
@@ -44,6 +44,12 @@ namespace Algorithm
 
         vtkSmartPointer<vtkImageData> GetOutput() const;
 
+    private:
+        void ComputeCenteredEuler3DTransform();
+        void ComputeFocalPoint();
+
+        vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
+        vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
 
     private:
         bool mDebug = true;
@@ -67,11 +73,5 @@ namespace Algorithm
         vtkVector3i mOutputDimension{512, 512, 1};
         vtkVector3d mOutputSpacing{1.0, 1.0, 1.0};
         double mDefaultPixelValue = 0.0;
-
-        void ComputeCenteredEuler3DTransform();
-        void ComputeFocalPoint();
-
-        vtkSmartPointer<vtkImageData> GenerateOutputImageDataSeq() const;
-        vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
     };
 }
