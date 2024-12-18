@@ -3,8 +3,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(DRR)
 
-add_definitions(-DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-
 find_package(VTK COMPONENTS
         CommonColor
         CommonCore
@@ -42,6 +40,11 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         CommonUtility/Test/TestUtil.cpp
         CommonUtility/Transformation/TransformUtil.cpp
         CommonUtility/Visualization/VisualizationUtil.cpp
+)
+
+target_compile_definitions(${PROJECT_NAME}
+        PRIVATE
+        CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 
 target_link_libraries(${PROJECT_NAME}
