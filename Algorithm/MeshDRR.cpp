@@ -9,9 +9,10 @@
 
 #include <execution>
 
-#include <CommonUtility/Transformation/TransformUtil.h>
-#include <CommonUtility/Mesh/MeshUtil.h>
-#include <CommonUtility/CollisionDetection/CollisionDetectionUtil.h>
+//submodule files
+#include "TransformUtil.h"
+#include "MeshUtil.h"
+#include "CollisionDetectionUtil.h"
 
 
 namespace Algorithm

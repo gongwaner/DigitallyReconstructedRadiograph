@@ -8,9 +8,10 @@
 
 #include <filesystem>
 
-#include <CommonUtility/IO/IOUtil.h>
-#include <CommonUtility/Mesh/MeshUtil.h>
-#include <CommonUtility/Visualization/VisualizationUtil.h>
+//submodule files
+#include "IOUtil.h"
+#include "MeshUtil.h"
+#include "VisualizationUtil.h"
 
 
 std::filesystem::path GetDataDir()
@@ -27,7 +28,7 @@ std::filesystem::path GetOutputDir()
 void TestVolumeDRR()
 {
     const auto dicomFolder = GetDataDir() / "pelvis";
-    auto imageData = IOUtil::ReadImageData(dicomFolder.string().c_str());
+    auto imageData = IOUtil::ReadDicomImageData(dicomFolder.string().c_str());
 
     const auto imageDimension = imageData->GetDimensions();
     const auto imageSpacing = imageData->GetSpacing();

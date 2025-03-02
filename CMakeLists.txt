@@ -27,19 +27,13 @@ endif ()
 # Prevent a "command line is too long" failure in Windows.
 set(CMAKE_NINJA_FORCE_RESPONSE_FILE "ON" CACHE BOOL "Force Ninja to use response files.")
 
-include_directories(${PROJECT_SOURCE_DIR})
+# Add the submodule as a subdirectory
+add_subdirectory(CommonUtility)
 
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE main.cxx
         Algorithm/VolumeDRR.cpp
         Algorithm/VolumeRayCastHelper.cpp
         Algorithm/MeshDRR.cpp
-        CommonUtility/CollisionDetection/CollisionDetectionUtil.cpp
-        CommonUtility/IO/IOUtil.cpp
-        CommonUtility/Mesh/MeshUtil.cpp
-        CommonUtility/Mesh/GeometricObjectUtil.cpp
-        CommonUtility/Test/TestUtil.cpp
-        CommonUtility/Transformation/TransformUtil.cpp
-        CommonUtility/Visualization/VisualizationUtil.cpp
 )
 
 target_compile_definitions(${PROJECT_NAME}
@@ -47,9 +41,15 @@ target_compile_definitions(${PROJECT_NAME}
         CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 
+target_include_directories(${PROJECT_NAME}
+        PRIVATE
+        ${PROJECT_SOURCE_DIR}
+)
+
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         ${VTK_LIBRARIES}
+        CommonUtility
 )
 
 # vtk_module_autoinit is needed
