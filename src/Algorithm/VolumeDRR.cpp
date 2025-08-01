@@ -1,10 +1,10 @@
 #include "VolumeDRR.h"
 
-#include <vtkImageData.h>
-#include <vtkVectorOperators.h>
-
 #include <execution>
 #include <chrono>
+
+#include <vtkImageData.h>
+#include <vtkVectorOperators.h>
 
 //submodule files
 #include "TransformUtil.h"
@@ -24,9 +24,8 @@ namespace Algorithm
 
         if(mDebug)
         {
-            printf("Input image dimension: %d, %d, %d, spacing: %f, %f, %f\n",
-                   imageDimension[0], imageDimension[1], imageDimension[2],
-                   imageSpacing[0], imageSpacing[1], imageSpacing[2]);
+            std::cout << "Input image dimension: " << imageDimension[0] << ", " << imageDimension[1] << ", " << imageDimension[2]
+                      << ", spacing: " << imageSpacing[0] << ", " << imageSpacing[1] << ", " << imageSpacing[2] << std::endl;
         }
 
         for(int i = 0; i < 3; ++i)
@@ -153,9 +152,10 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
-                   mOutputSpacing[0], mOutputSpacing[1],
-                   mOutputSpacing[2]);
+        {
+            std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
+                      << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
+        }
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -197,9 +197,10 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataPar() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n",
-                   mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
-                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
+        {
+            std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
+                      << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
+        }
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());

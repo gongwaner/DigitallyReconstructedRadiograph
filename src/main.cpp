@@ -1,18 +1,17 @@
-#include "Algorithm/VolumeDRR.h"
-#include "Algorithm/MeshDRR.h"
+#include <filesystem>
 
 #include <vtkImageData.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
 #include <vtkImageIterator.h>
 
-#include <filesystem>
-
 //submodule files
 #include "IOUtil.h"
 #include "MeshUtil.h"
 #include "VisualizationUtil.h"
 
+#include "Algorithm/VolumeDRR.h"
+#include "Algorithm/MeshDRR.h"
 
 std::filesystem::path GetDataDir()
 {
@@ -33,9 +32,9 @@ void TestVolumeDRR()
     const auto imageDimension = imageData->GetDimensions();
     const auto imageSpacing = imageData->GetSpacing();
     const auto scalarType = imageData->GetScalarTypeAsString();
-    printf("Input image dimension: %d, %d, %d\nimage spacing: %f, %f, %f\nscalar type = %s\n",
-           imageDimension[0], imageDimension[1], imageDimension[2],
-           imageSpacing[0], imageSpacing[1], imageSpacing[2], scalarType);
+
+    std::cout << "Input image dimension: " << imageDimension[0] << ", " << imageDimension[1] << ", " << imageDimension[2]
+              << "\nInput image spacing: " << imageSpacing[0] << ", " << imageSpacing[1] << ", " << imageSpacing[2] << std::endl;
 
     const bool visualizeCT = false;
     if(visualizeCT)
@@ -67,7 +66,7 @@ void TestVolumeDRR()
         totalExecutionTime += duration.count();
     }
     const auto avgExecutionTime = (double) totalExecutionTime / (double) executionCnt;
-    printf("\n%i average execution time:%f ms\n", executionCnt, avgExecutionTime);
+    std::cout << "\nAverage execution time over " << executionCnt << " runs: " << avgExecutionTime << " ms" << std::endl;
 
     const auto outFile = GetOutputDir() / "drr_volume.png";
     std::cout << "outFile: " << outFile << std::endl;
@@ -103,7 +102,7 @@ void TestMeshDRR()
     IOUtil::WritePng(outFile.string().c_str(), outputImage);
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     TestVolumeDRR();
     TestMeshDRR();

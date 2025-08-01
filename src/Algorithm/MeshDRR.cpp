@@ -1,13 +1,13 @@
 #include "MeshDRR.h"
 
+#include <execution>
+
 #include <vtkPolyData.h>
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <vtkVectorOperators.h>
 #include <vtkImageIterator.h>
 #include <vtkOBBTree.h>
-
-#include <execution>
 
 //submodule files
 #include "TransformUtil.h"
@@ -173,8 +173,10 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataSeq() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
-                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
+        {
+            std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
+                      << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
+        }
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
@@ -232,8 +234,10 @@ namespace Algorithm
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataPar() const
     {
         if(mDebug)
-            printf("Output image dimension: %d, %d, %d, spacing: %f, %f, %f\n", mOutputDimension[0], mOutputDimension[1], mOutputDimension[2],
-                   mOutputSpacing[0], mOutputSpacing[1], mOutputSpacing[2]);
+        {
+            std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
+                      << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
+        }
 
         auto outputImage = vtkSmartPointer<vtkImageData>::New();
         outputImage->SetOrigin(mOutputOrigin.GetData());
