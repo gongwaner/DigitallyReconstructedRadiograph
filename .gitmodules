@@ -1,0 +1,3 @@
+[submodule "CommonUtility"]
+	path = CommonUtility
+	url = git@github.com:gongwaner/CommonUtility.git
