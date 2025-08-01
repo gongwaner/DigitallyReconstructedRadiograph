@@ -12,6 +12,11 @@
 #include "VolumeRayCastHelper.h"
 
 
+namespace
+{
+    constexpr bool DEBUG = true;
+}
+
 namespace Algorithm
 {
     void VolumeDRR::SetInputImage(vtkImageData* imageData)
@@ -22,7 +27,7 @@ namespace Algorithm
         const auto imageSpacing = mImageData->GetSpacing();
         const auto imageDimension = mImageData->GetDimensions();
 
-        if(mDebug)
+        if constexpr(DEBUG)
         {
             std::cout << "Input image dimension: " << imageDimension[0] << ", " << imageDimension[1] << ", " << imageDimension[2]
                       << ", spacing: " << imageSpacing[0] << ", " << imageSpacing[1] << ", " << imageSpacing[2] << std::endl;
@@ -95,11 +100,6 @@ namespace Algorithm
         mPerspectiveProjection = false;
     }
 
-    void VolumeDRR::SetDebugModeOn()
-    {
-        mDebug = true;
-    }
-
     void VolumeDRR::SetOutputSpacing(const vtkVector3d& spacing)
     {
         mOutputSpacing = spacing;
@@ -151,7 +151,7 @@ namespace Algorithm
     //ref: https://github.com/InsightSoftwareConsortium/ITK/blob/12328e1d2ff8becab001654dccbb393657521691/Modules/Filtering/ImageGrid/include/itkResampleImageFilter.hxx#L369
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataSeq() const
     {
-        if(mDebug)
+        if constexpr(DEBUG)
         {
             std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
                       << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
@@ -196,7 +196,7 @@ namespace Algorithm
      */
     vtkSmartPointer<vtkImageData> VolumeDRR::GenerateOutputImageDataPar() const
     {
-        if(mDebug)
+        if constexpr(DEBUG)
         {
             std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
                       << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;

@@ -26,7 +26,6 @@ namespace Algorithm
         void SetOutputSpacing(double spacingX, double spacingY, double spacingZ);
         void SetProjectionToPerspective();
         void SetProjectionToOrthographic();
-        void SetDebugModeOn();
 
         void Update();
 
@@ -64,8 +63,5 @@ namespace Algorithm
 
         //projection mode
         bool mPerspectiveProjection = true;//false means orthographic projection
-
-        //debug flag
-        bool mDebug = false;
     };
 }

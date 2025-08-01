@@ -15,6 +15,11 @@
 #include "CollisionDetectionUtil.h"
 
 
+namespace
+{
+    constexpr bool DEBUG = true;
+}
+
 namespace Algorithm
 {
     void MeshDRR::SetInputPolyData(vtkPolyData* polyData)
@@ -172,7 +177,7 @@ namespace Algorithm
 
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataSeq() const
     {
-        if(mDebug)
+        if constexpr(DEBUG)
         {
             std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
                       << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;
@@ -233,7 +238,7 @@ namespace Algorithm
 #ifdef _WIN32
     vtkSmartPointer<vtkImageData> MeshDRR::GenerateOutputImageDataPar() const
     {
-        if(mDebug)
+        if constexpr(DEBUG)
         {
             std::cout << "Output image dimension: " << mOutputDimension[0] << ", " << mOutputDimension[1] << ", " << mOutputDimension[2]
                       << ", spacing: " << mOutputSpacing[0] << ", " << mOutputSpacing[1] << ", " << mOutputSpacing[2] << std::endl;

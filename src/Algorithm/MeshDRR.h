@@ -52,8 +52,6 @@ namespace Algorithm
         vtkSmartPointer<vtkImageData> GenerateOutputImageDataPar() const;
 
     private:
-        bool mDebug = true;
-
         vtkPolyData* mPolyData = nullptr;
         double mAttenuationCoefficient = 1.0;
         vtkSmartPointer<vtkMatrix4x4> mTransform = nullptr;
